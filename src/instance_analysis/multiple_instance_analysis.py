@@ -372,18 +372,18 @@ def donor_data_analysis(donors_list):
             st.markdown("""##### 1. Distribution of No. of Donors in the set""")
             cola, colb = st.columns(2)
             with cola:
-                b = donor_instances_df[['Instance Id','No. of Donors']]
+                b = donor_instances_df[['No. of Donors']].copy()
                 st.dataframe(b.describe())
             with colb:
-                a_380 = b.copy()
-                a_380['Frequency in the Set'] = b['Instance Id'].copy()
+                a_3802 = b.copy()
+                a_3802['Frequency in the Set'] = donor_instances_df['Instance Id'].copy()
                 # fig = px.histogram(a_380, x="No. of Donors",y = 'Frequency in the Set',title = 'Donors Count distribution  ' , color_discrete_sequence = px.colors.sequential.Cividis)
-                fig = px.bar(a_380, x="Frequency in the Set", y="No. of Donors",title = 'Donors Count distribution within set  ' , color_discrete_sequence = px.colors.sequential.Cividis)
+                fig = px.bar(a_3802, x="Frequency in the Set", y="No. of Donors",title = 'Donors Count distribution within set  ' , color_discrete_sequence = px.colors.sequential.Cividis)
                 fig.update_layout(legend=dict(
                 orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1),
                 title_font_size= 17)
 
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig,use_container_width=True)
 
         with st.container():
             st.markdown("""##### 2. Distribution of Altruistic Donors in the set""")
@@ -403,7 +403,7 @@ def donor_data_analysis(donors_list):
                 fig1, ax1 = plt.subplots()
                 ax1.pie(values, labels = labels, colors = ['#0077e6','#001a33'])
                 st.write('Altruistic Donors Distribution in the set')
-                st.pyplot(fig1)
+                st.pyplot(fig1,use_container_width=True)
             with colc1:
                 fig = px.bar(donor_instances_df, x="Instance Id", y=["No. of Altruistic Donors", "No. of Non Altruistic Donors"],
                 title="Accumulative Distribution of Altruistic Donors in instances",
@@ -412,14 +412,14 @@ def donor_data_analysis(donors_list):
                 orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1),
                 title_font_size= 15)
 
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig,use_container_width=True)
 
 
         with st.container():
             st.markdown("""##### 3. Distribution of Donor's Age in the set""")
             cola,colb = st.columns(2)
             with cola:
-                b2 = donor_instances_df[['Instance Id',
+                b2 = donor_instances_df[[
                 'Average Age of Donors',
                 'Min Age of Donors',
                 'Max Age of Donors',
@@ -452,12 +452,12 @@ def donor_data_analysis(donors_list):
             st.markdown("""##### 4. Matches Count Distribution of Donors in the set""")
             cola, colb = st.columns(2)
             with cola:
-                b = donor_instances_df[['Instance Id','Avg No. of Matches','Max No. of Matches','Min No. of Matches']]
+                b = donor_instances_df[['Avg No. of Matches','Max No. of Matches','Min No. of Matches']]
                 st.dataframe(b.describe())
             with colb:
 
                 # fig = px.histogram(b, x="Instance Id",y ="Avg No. of Matches",title = 'Recipients cPRA distribution  ' , color_discrete_sequence = px.colors.sequential.Cividis)
-                fig = px.bar(b,
+                fig = px.bar(donor_instances_df,
                 x="Instance Id", y="Avg No. of Matches",title = 'Avg No. of Matches Count distribution  ' , color_discrete_sequence = px.colors.sequential.Cividis)
                 fig.update_layout(legend=dict(
                 orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1),
@@ -629,13 +629,13 @@ def recipient_data_analysis(recipients_list):
         st.markdown("""##### 1. Distribution of No. of Recipients in the set""")
         cola, colb = st.columns(2)
         with cola:
-            b = recipients_instances_fin_df[['Instance Id','No. of Recipients']]
+            b = recipients_instances_fin_df[['No. of Recipients']]
             st.dataframe(b.describe())
         with colb:
             a_3801 = b.copy()
-            a_3801['Frequency in the Set'] = b['Instance Id'].copy()
+            a_3801['Frequency in the Set'] = recipients_instances_fin_df['Instance Id'].copy()
             # fig = px.histogram(a_380, x="No. of Donors",y = 'Frequency in the Set',title = 'Donors Count distribution  ' , color_discrete_sequence = px.colors.sequential.Cividis)
-            fig = px.bar(a_3801, x="Instance Id",
+            fig = px.bar(a_3801, x="Frequency in the Set",
              y="No. of Recipients",
              title = 'Recipients Count distribution  ' , color_discrete_sequence = px.colors.sequential.Cividis)
             fig.update_layout(legend=dict(
@@ -709,7 +709,7 @@ def recipient_data_analysis(recipients_list):
         st.markdown("""##### 4. cPRA Distribution of Recipients in the set""")
 
 
-        b2 = recipients_instances_fin_df[['Instance Id',
+        b2 = recipients_instances_fin_df[[
         'cPRA mean',
         'cPRA median',
         'cPRA std']].describe()
@@ -892,11 +892,11 @@ def all_cycle_anlysis(payload_list):
             st.markdown("""##### 1. Distribution of No. of Cycles in the set""")
             cola, colb = st.columns(2)
             with cola:
-                b895= payload_fin_df[['Instance Id','No. of Cycles']]
+                b895= payload_fin_df[['No. of Cycles']]
                 st.dataframe(b895.describe())
             with colb:
                 a_38012 = b895.copy()
-                a_38012['Frequency in the Set'] = b895['Instance Id'].copy()
+                a_38012['Frequency in the Set'] = payload_fin_df['Instance Id'].copy()
                 # fig = px.histogram(a_380, x="No. of Donors",y = 'Frequency in the Set',title = 'Donors Count distribution  ' , color_discrete_sequence = px.colors.sequential.Cividis)
                 fig = px.bar(a_38012, x="Frequency in the Set",
                  y="No. of Cycles",
@@ -909,7 +909,7 @@ def all_cycle_anlysis(payload_list):
         with st.container():
             st.markdown("""##### 2. Weight Distribution of Cycles in the set""")
 
-            b7 = payload_fin_df[['Instance Id',
+            b7 = payload_fin_df[[
             'Weight Avg',
             'Weight Median',
             'Weight std']].describe()
@@ -1126,11 +1126,11 @@ def exchange_cycle_anlysis(payload_list):
         st.markdown("""##### 1. Distribution of No. of Exchange Cycles in the set""")
         cola, colb = st.columns(2)
         with cola:
-            b895= exchange_data_final_df[['Instance Id','No. of Exchange Cycles']]
+            b895= exchange_data_final_df[['No. of Exchange Cycles']]
             st.dataframe(b895.describe())
         with colb:
             a_38012 = b895.copy()
-            a_38012['Frequency in the Set'] = b895['Instance Id'].copy()
+            a_38012['Frequency in the Set'] = exchange_data_final_df['Instance Id'].copy()
             # fig = px.histogram(a_380, x="No. of Donors",y = 'Frequency in the Set',title = 'Donors Count distribution  ' , color_discrete_sequence = px.colors.sequential.Cividis)
             fig = px.bar(a_38012, x="Frequency in the Set",
              y="No. of Exchange Cycles",
@@ -1143,11 +1143,11 @@ def exchange_cycle_anlysis(payload_list):
         st.markdown("""##### 2. Distribution of No. of Total Transplants""")
         cola, colb = st.columns(2)
         with cola:
-            b895= exchange_data_final_df[['Instance Id','Total Transplants']]
+            b895= exchange_data_final_df[['Total Transplants']]
             st.dataframe(b895.describe())
         with colb:
             a_38012 = b895.copy()
-            a_38012['Frequency in the Set'] = b895['Instance Id'].copy()
+            a_38012['Frequency in the Set'] = exchange_data_final_df['Instance Id'].copy()
             # fig = px.histogram(a_380, x="No. of Donors",y = 'Frequency in the Set',title = 'Donors Count distribution  ' , color_discrete_sequence = px.colors.sequential.Cividis)
             fig = px.bar(a_38012, x="Frequency in the Set",
              y="Total Transplants",
@@ -1159,7 +1159,7 @@ def exchange_cycle_anlysis(payload_list):
     with st.container():
         st.markdown("""##### 3. Weight Distribution of Exchanges in the set""")
 
-        b7 = exchange_data_final_df[['Instance Id','Weight of Exchanges','Avg weight of exc cycles']].describe()
+        b7 = exchange_data_final_df[['Weight of Exchanges','Avg weight of exc cycles']].describe()
         # 'Weight Avg',
         # 'Weight Median',
         # 'Weight std']].describe()
