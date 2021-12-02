@@ -88,19 +88,15 @@ def get_zip_contents(uploaded_file):
         instance_list.append(jsonobj)
     return instance_list, zipped_file_name
 
-
-
-
-
 def upload_files_to_database(uploaded_instances, zipped_file_name,i):
     db_ref = None
     if zipped_file_name:
         db_ref = st.session_state.db_ref
 
-        zipped_file_name = 'SetA/'
+
         for uploaded_instance in uploaded_instances:
-            sub = (str(zipped_file_name) + str(i)).replace('/','_')
-            st.write(i)
+            sub = (str(zipped_file_name) + '_'+str(i)).replace('/','_')
+            st.write(sub + str(i))
             db_ref.child(zipped_file_name).child(sub).child("donor").set(uploaded_instance['data'])
             db_ref.child(zipped_file_name).child(sub).child("recipients").set(uploaded_instance['recipients'])
             kep_instances_dict = {'data': uploaded_instance['data']}
@@ -118,13 +114,12 @@ def upload_files_to_database(uploaded_instances, zipped_file_name,i):
 
 def delete_files(i,k, filename):
     db_ref = None
-
     if  k:
         db_ref = st.session_state.db_ref
 
         for j in range(i,k):
-            zipped_file_name = 'SetA/'
-            sub = (str(zipped_file_name) + str(j)).replace('/','_')
-            db_ref.child('SetA').child(sub).remove()
+            zipped_file_name = filename
+            sub = (str(zipped_file_name) + '_' +str(j)).replace('/','_')
+            db_ref.child(filename).child(sub).remove()
     # if filename:
     # db_ref.child('SetA').child('SetA_151').remove()

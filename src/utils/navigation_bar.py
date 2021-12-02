@@ -15,7 +15,7 @@ class Navigation:
 
     def run(self):
         page = st.sidebar.selectbox(
-            'KEPIA Navigation',
+            'KEPIA Navigation(Note: Refresh Before Changing the Page)',
             self.pages,
             format_func=lambda page: page['title']
         )

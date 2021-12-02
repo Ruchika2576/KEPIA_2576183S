@@ -10,14 +10,18 @@ import single_instance_analysis, multiple_instance_analysis, analysis_stored_dat
 sys.path.append('utils')
 from firebase import get_DB_Config
 
+st.set_page_config(
+     page_title="KEPIA",
+     layout="wide",
+     initial_sidebar_state="expanded",
+ )
+
 if 'db_ref' not in st.session_state:
     st.session_state['db_ref'] = get_DB_Config()
 
-navigation_instance = Navigation()
-
-
-navigation_instance.add_page("Multiple Instances Analysis(Stored Sets)", analysis_stored_data.app)
-navigation_instance.add_page("Upload Data (Stored Sets) Only admin ", upload_stored_sets.app)
-navigation_instance.add_page("Multiple Instances Analysis(Upto 100 Files)", multiple_instance_analysis.app)
-navigation_instance.add_page("Single Instance Analysis", single_instance_analysis.app)
-navigation_instance.run()
+nav_instance = Navigation()
+# nav_instance.add_page("Multiple Instances Analysis(Stored Sets)", analysis_stored_data.app)
+# nav_instance.add_page("Upload Data (Stored Sets) Only admin ", upload_stored_sets.app)
+nav_instance.add_page("Multiple Instances Analysis(Upto 100 Files)", multiple_instance_analysis.app)
+nav_instance.add_page("Single Instance Analysis", single_instance_analysis.app)
+nav_instance.run()
