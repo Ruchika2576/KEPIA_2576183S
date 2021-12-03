@@ -1,14 +1,8 @@
-
-import collections
-from numpy.core.defchararray import lower
 import streamlit as st
-import numpy as np
 import pandas as pd
 import zipfile
-import streamlit.components.v1 as components
 import io
 import json
-import sys
 import requests
 import concurrent.futures
 import time
@@ -82,7 +76,7 @@ def main():
                     col2.markdown(""" **_Operation_ ** - """ + str(operation))
                     col3.markdown("""**_Altruistic Chain Length_** - """ + str(altruistic_chain_length))
          if 'recipients_list'  in st.session_state and 'kep_instance_list' in st.session_state:
-            
+
             analysis(st.session_state.kep_instance_list,st.session_state.recipients_list,st.session_state.payload_list )
 
     elif (single_begin_analysis_butto and not multi_uploaded_zip_instance):

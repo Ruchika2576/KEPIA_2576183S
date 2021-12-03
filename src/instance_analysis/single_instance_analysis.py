@@ -5,7 +5,7 @@ import json
 import requests
 import matplotlib.pyplot as plt
 import numpy as np
-import altair as alt
+import altair as altair
 import plotly.express as px
 from streamlit_vega_lite import vega_lite_component, altair_component
 import plotly.graph_objects as go
@@ -285,14 +285,14 @@ def donor_data_analysis(single_instance):
             a['Donors Count'] = a['dage'].map(a1)
 
 
-            p = alt.Chart(a, title = 'Donor Age Distribution').mark_bar().encode(
+            p = altair.Chart(a, title = 'Donor Age Distribution').mark_bar().encode(
             x = 'dage',
             y = 'Donors Count',
             tooltip = ['dage','Donors Count']
             )
 
             p = p.properties(
-             width = alt.Step(80)
+             width = altair.Step(80)
             )
             st.write(p)
 
@@ -302,8 +302,8 @@ def donor_data_analysis(single_instance):
         # hist_data = pd.DataFrame(np.random.normal(42, 10, (200, 1)), columns=["x"])
 
 
-        # brushed = alt.selection_interval(encodings=["x"], name="brushed")
-        # a = alt.Chart(hist_data).mark_bar().encode(alt.X("x:Q", bin=True), y="count()").add_selection(brushed)
+        # brushed = altair.selection_interval(encodings=["x"], name="brushed")
+        # a = altair.Chart(hist_data).mark_bar().encode(altair.X("x:Q", bin=True), y="count()").add_selection(brushed)
         # event_dict = altair_component(altair_chart=a)
         #
         # r = event_dict.get("x")
@@ -346,14 +346,14 @@ def donor_data_analysis(single_instance):
         des['median'] = donors['Matches Count'].median()
         st.dataframe(list(des.items()))
     with col2:
-        p = alt.Chart(a, title = 'Matches count Distribution').mark_bar().encode(
+        p = altair.Chart(a, title = 'Matches count Distribution').mark_bar().encode(
         x = 'Matches Count',
         y = 'Frequency',
         tooltip = ['Matches Count','Frequency']
         )
 
         p = p.properties(
-         width = alt.Step(80)
+         width = altair.Step(80)
         )
         st.write(p)
     with st.container():

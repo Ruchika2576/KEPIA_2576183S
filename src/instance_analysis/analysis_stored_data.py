@@ -1,21 +1,9 @@
-import collections
-from numpy.core.defchararray import lower
 import streamlit as st
-import numpy as np
 import pandas as pd
-import zipfile
-import streamlit.components.v1 as components
-import io
-import json
-import sys
-import requests
-import concurrent.futures
-import time
-from time import sleep
+
 import plotly
 import plotly.graph_objects as go
 import seaborn as sn
-import altair as altair
 import matplotlib.pyplot as plt
 import plotly.express as px
 

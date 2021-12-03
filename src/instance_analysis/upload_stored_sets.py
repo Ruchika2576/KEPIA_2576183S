@@ -1,15 +1,11 @@
 import streamlit as st
-import numpy as np
-import pandas as pd
 import zipfile
 import json
-import sys
 import io
-import pyrebase
 import requests
-import requests
-import concurrent.futures
-import time
+
+
+
 
 kidney_exchange_allocator_url = 'https://kidney-nhs.optimalmatching.com/kidney/find.json'
 
@@ -40,6 +36,7 @@ def main():
         upload_files_to_database(uploaded_instances, filename,i)
 
         st.markdown("""***""")
+    with col2:
         st.markdown("#### Data Delete : Only admin")
         st.markdown("#### To delete Files")
 
@@ -49,6 +46,7 @@ def main():
 
         if(st.button("delete")):
             delete_files(i,k,filename_del)
+        st.markdown("""***""")
 
 
 def upload_zip_file():
