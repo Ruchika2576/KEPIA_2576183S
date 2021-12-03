@@ -20,8 +20,8 @@ if 'db_ref' not in st.session_state:
     st.session_state['db_ref'] = get_DB_Config()
 
 nav_instance = Navigation()
-# nav_instance.add_page("Multiple Instances Analysis(Stored Sets)", analysis_stored_data.app)
-# nav_instance.add_page("Upload Data (Stored Sets) Only admin ", upload_stored_sets.app)
+nav_instance.add_page("Multiple Instances Analysis(Stored Sets)", analysis_stored_data.app)
+nav_instance.add_page("Upload Data (Stored Sets) Only admin ", upload_stored_sets.app)
 nav_instance.add_page("Multiple Instances Analysis(Upto 100 Files)", multiple_instance_analysis.app)
 nav_instance.add_page("Single Instance Analysis", single_instance_analysis.app)
 nav_instance.run()

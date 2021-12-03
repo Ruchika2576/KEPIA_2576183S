@@ -19,31 +19,37 @@ def app():
     st.markdown("#### Data Upload : Only admin")
     st.markdown("Upload a zip file (10 files only) to store")
 
-    password = st.text_input("Enter admin password", type="password")
-    if(password == 'Kepia@123'):
-        main(password)
+    # password = st.text_input("Enter admin password", type="password")
+    # if(password == 'Kepia@123'):
+    main()
     # main()
 
 def main():
 
-
     uploaded_instances = []
     zipped_file_name = None
-    i = int(st.number_input('Enter index (files will be stored as filename_index)'))
 
+    col1,col2,col3 = st.columns(3)
 
-    uploaded_instances, zipped_file_name = upload_zip_file()
+    with col1:
 
+        filename = st.text_input('Enter the root File name * (File will be stored under this directory)')
+        i = int(st.number_input('Enter index  *(files will be stored as filename_index)'))
+        uploaded_instances, zipped_file_name = upload_zip_file()
 
-    upload_files_to_database(uploaded_instances, zipped_file_name,i)
-    st.markdown("#### To delete Files")
+        upload_files_to_database(uploaded_instances, filename,i)
 
-    filename = st.text_input('Enter File name')
-    i = int(st.number_input('Enter Start index'))
-    k = int(st.number_input('Enter End index '))
+        st.markdown("""***""")
+        st.markdown("#### Data Delete : Only admin")
+        st.markdown("#### To delete Files")
 
-    if(st.button("delete")):
-        delete_files(i,k,filename)
+        filename_del = st.text_input('Enter File name(root directory)')
+        i = int(st.number_input('Enter Start index'))
+        k = int(st.number_input('Enter End index '))
+
+        if(st.button("delete")):
+            delete_files(i,k,filename_del)
+
 
 def upload_zip_file():
     uploaded_file = None
@@ -54,7 +60,6 @@ def upload_zip_file():
         uploaded_file = st.file_uploader("Choose a file : ", type = ['zip'])
     except Exception as e:
         st.error("!!! Exception has occurred while uploading the file try again, If Exception persists contact support." )
-
 
 
     if uploaded_file is not None:
@@ -88,17 +93,17 @@ def get_zip_contents(uploaded_file):
         instance_list.append(jsonobj)
     return instance_list, zipped_file_name
 
-def upload_files_to_database(uploaded_instances, zipped_file_name,i):
+def upload_files_to_database(uploaded_instances, filename,i):
     db_ref = None
-    if zipped_file_name:
+    if filename and uploaded_instances is not None:
         db_ref = st.session_state.db_ref
-
+        # zipped_file_name = 'SetC'
 
         for uploaded_instance in uploaded_instances:
-            sub = (str(zipped_file_name) + '_'+str(i)).replace('/','_')
-            st.write(sub + str(i))
-            db_ref.child(zipped_file_name).child(sub).child("donor").set(uploaded_instance['data'])
-            db_ref.child(zipped_file_name).child(sub).child("recipients").set(uploaded_instance['recipients'])
+            sub = (str(filename) + '_'+str(i)).replace('/','_')
+            st.write(sub + " stored")
+            db_ref.child(filename).child(sub).child("donor").set(uploaded_instance['data'])
+            db_ref.child(filename).child(sub).child("recipients").set(uploaded_instance['recipients'])
             kep_instances_dict = {'data': uploaded_instance['data']}
 
             kep_instance_obj  = {
@@ -109,8 +114,9 @@ def upload_files_to_database(uploaded_instances, zipped_file_name,i):
             response = requests.post(kidney_exchange_allocator_url, data = kep_instance_obj )
             payload =  response.json()
 
-            db_ref.child(zipped_file_name).child(sub).child("payload").set(payload)
+            db_ref.child(filename).child(sub).child("payload").set(payload)
             i = int(i) + 1
+        st.info('File Stored Successfully!!')
 
 def delete_files(i,k, filename):
     db_ref = None
@@ -121,5 +127,6 @@ def delete_files(i,k, filename):
             zipped_file_name = filename
             sub = (str(zipped_file_name) + '_' +str(j)).replace('/','_')
             db_ref.child(filename).child(sub).remove()
+        st.info('File Deleted Successfully!!')
     # if filename:
     # db_ref.child('SetA').child('SetA_151').remove()

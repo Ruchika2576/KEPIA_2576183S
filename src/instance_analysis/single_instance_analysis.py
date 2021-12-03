@@ -390,8 +390,8 @@ def filter_data_donors(donors):
     max_count = donors['Matches Count'].max()
     # st.write(min_age,max_age,min_count,max_count)
 
-    col1, col2 = st.columns(2)
-    with col1:
+    col111, col222 = st.columns(2)
+    with col111:
         st.write(""" ###### Enter the Attribute Values(Default values select all donors):""")
         with st.form('Filter Donors'):
 
@@ -446,18 +446,14 @@ def filter_data_donors(donors):
                         ((donors['Matches Count'] >= count_low) & (donors['Matches Count'] <= count_high))
                         ]
 
-
-
-
-    with col2:
+    with col222:
         if finaldisplay_donor is not None:
-            st.markdown(""" ###### Filtered Recipients List:""")
+            st.markdown(""" ###### Filtered Donors List:""")
             st.write('Total Count:' + str(len(finaldisplay_donor)))
             st.write('1. Age Range: ' + str(dage_low) +' to ' + str(dage_high) )
             st.write('2. bloodtype: ' + bloodtype_choices)
-            st.write('3. hasBloodCompatibleDonor: ' +  altruistic_choices )
+            st.write('3. Altruistic: ' +  altruistic_choices )
             st.write('4. Matches Count Range: ' + str(count_low) +' to ' + str(count_high) )
-
             st.dataframe(finaldisplay_donor)
 
 
@@ -547,7 +543,7 @@ def filter_data_recipients(recipients):
     cPRA_high =0.0
     bloodtype_choices = 'A'
     Compatibility_choices = True
-    finaldisplay = None
+    finaldisplay_rec = None
     cPRA_min = recipients['cPRA'].min()
     cPRA_max = recipients['cPRA'].max()
 
@@ -571,36 +567,36 @@ def filter_data_recipients(recipients):
 
             if(submit_rec_filter):
                 if bloodtype_choices != 'None' and Compatibility_choices != 'None':
-                    finaldisplay = recipients[
+                    finaldisplay_rec = recipients[
                         ((recipients['cPRA'] >= cPRA_low) & (recipients['cPRA'] <= cPRA_high)) &
                         (recipients['bloodtype'] == str(bloodtype_choices)) &
                         (x['HasBloodCompatibleDonor'] == (Compatibility_choices))
                         ]
                 elif bloodtype_choices == 'None' and Compatibility_choices == 'None':
-                    finaldisplay = recipients[
+                    finaldisplay_rec = recipients[
                         ((recipients['cPRA'] >= cPRA_low) & (recipients['cPRA'] <= cPRA_high))
                         ]
                 elif bloodtype_choices != 'None' and Compatibility_choices == 'None':
-                    finaldisplay = recipients[
+                    finaldisplay_rec = recipients[
                         ((recipients['cPRA'] >= cPRA_low) & (recipients['cPRA'] <= cPRA_high)) &
                         (recipients['bloodtype'] == str(bloodtype_choices))
                         ]
                 elif bloodtype_choices == 'None' and Compatibility_choices != 'None':
-                    finaldisplay = recipients[
+                    finaldisplay_rec = recipients[
                         ((recipients['cPRA'] >= cPRA_low) & (recipients['cPRA'] <= cPRA_high)) &
                         (x['HasBloodCompatibleDonor'] == (Compatibility_choices))
                         ]
 
 
     with col2:
-        if finaldisplay is not None:
+        if finaldisplay_rec is not None:
             st.markdown(""" ###### Filtered Recipients List:""")
-            st.write('Total Count:' + str(len(finaldisplay)))
+            st.write('Total Count:' + str(len(finaldisplay_rec)))
             st.write('1. cPRA Range: ' + str(cPRA_low) +' to ' + str(cPRA_high) )
             st.write('2. bloodtype: ' + bloodtype_choices)
             st.write('3. hasBloodCompatibleDonor: ' +  Compatibility_choices )
 
-            st.dataframe(finaldisplay)
+            st.dataframe(finaldisplay_rec)
 
 
 
