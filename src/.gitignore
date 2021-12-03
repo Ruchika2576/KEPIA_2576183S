@@ -1,4 +1,4 @@
 .*
 __pycache__/
-!/.gitignor
+!/.gitignore
 *.py[cod]
