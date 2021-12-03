@@ -716,7 +716,7 @@ def analysis_payload(payload_final_list_stored):
 
               all_cycle_dataframe = pd.DataFrame(all_cycles_dict).T
               all_cycle_dataframe = all_cycle_dataframe.astype({'cycle': 'str' })
-              all_cycle_dataframe = all_cycle_dataframe.astype({'alt' : 'str'})
+              all_cycle_dataframe = all_cycle_dataframe.astype({'altruistic' : 'str'})
 
               # all_ids = []
               # all_cycles = payload.get('output').get('all_cycles')
