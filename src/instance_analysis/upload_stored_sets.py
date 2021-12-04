@@ -4,9 +4,6 @@ import json
 import io
 import requests
 
-
-
-
 kidney_exchange_allocator_url = 'https://kidney-nhs.optimalmatching.com/kidney/find.json'
 
 def app():
@@ -25,7 +22,7 @@ def main():
     uploaded_instances = []
     zipped_file_name = None
 
-    col1,col2,col3 = st.columns(3)
+    col1,col2 = st.columns(2)
 
     with col1:
 
