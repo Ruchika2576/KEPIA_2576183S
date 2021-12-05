@@ -1,4 +1,5 @@
 import streamlit as st
+from utils import constants as const
 
 class Navigation:
 
@@ -15,7 +16,7 @@ class Navigation:
 
     def run(self):
         page = st.sidebar.selectbox(
-            'KEPIA Navigation(Note: Refresh Before Changing the Page)',
+            const.navigation_title,
             self.pages,
             format_func=lambda page: page['title']
         )

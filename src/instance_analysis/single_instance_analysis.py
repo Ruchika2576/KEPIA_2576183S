@@ -15,9 +15,6 @@ import plotly
 kidney_exchange_allocator_url = 'https://kidney-nhs.optimalmatching.com/kidney/find.json'
 
 def app():
-
-
-
     # if 'begin_analysis_button' in st.session_state:
     #
     #     st.session_state.begin_analysis_button = False
@@ -127,16 +124,17 @@ def get_response_from_KAL(single_instance, single_operation,single_altruistic_ch
 
     try:
         response = requests.post(kidney_exchange_allocator_url, data = kep_single_instance_obj)
+        if response.status_code == 200:
+            payload = response.json()
+        else:
+            st.error(f"Request returned: {response.status_code} : '{response.reason}'")
+            raise RuntimeError('Error in Response from https://kidney-nhs.optimalmatching.com/')
     except Exception as exc:
         st.error(st.session_state)
         st.error('Error ocurred while fetching data from https://kidney-nhs.optimalmatching.com/' )
         # st.error(exc)
 
-    if response.status_code == 200:
-        payload = response.json()
-    else:
-        st.error(f"Request returned: {response.status_code} : '{response.reason}'")
-        raise RuntimeError('Error in Response from https://kidney-nhs.optimalmatching.com/')
+
 
 
     return payload
@@ -662,23 +660,31 @@ def exchange_cycle_anlysis(single_instance, recipients, payload):
                 ax.pie(values, labels = labels, colors = ['#0077e6','#0059b3','#003366','#001a33'])
                 st.pyplot(fig)
 
-            st.markdown( """ *** """)
-            if show_exchanges:
-                    col = []
-                    val = []
-                    for k in e.keys():
-                        col.append(k)
+        st.markdown( """ *** """)
+        if show_exchanges:
+                col = []
+                val = []
+                for k in e.keys():
+                    col.append(k)
 
-                    for v in e.values():
-                        val.append(str(v))
+                for v in e.values():
+                    val.append(str(v))
 
-                    for i in e.get('exchanges'):
-                      a = payload.get('output').get('all_cycles').get(str(i)).get('cycle')
-                      df_2 = pd.DataFrame(a)
-                      c2,c3,sc,lc,type = per_cycle(df_2)
-                      st.markdown("""**-----------Cycle:  **"""+ str(i) )
-                      st.markdown(type)
-                      st.write(df_2)
+                for i in e.get('exchanges'):
+                  a = payload.get('output').get('all_cycles').get(str(i)).get('cycle')
+                  df_2 = pd.DataFrame(a)
+                  c2,c3,sc,lc,type = per_cycle(df_2)
+                  if i%2 == 0:
+                      with col2:
+                          st.markdown("""**-----------Cycle:  **"""+ str(i) )
+                          st.markdown(type)
+                          st.write(df_2)
+                  else:
+                       with col1:
+                           st.markdown("""**-----------Cycle:  **"""+ str(i) )
+                           st.markdown(type)
+                           st.write(df_2)
+
 
 
         col1, col2 = st.columns(2)
@@ -765,7 +771,7 @@ def all_cycle_anlysis(single_instance, recipients, payload):
         st.pyplot(fig)
             # st.plotly_chart(fig)
 
-    st.markdown(""" ##### 3. Expand specific Cycles - """)
+    st.markdown(""" ##### 3. Expand Specific Cycles - """)
 
     col1,col2 = st.columns([2,1])
     with col1:
