@@ -3,7 +3,7 @@ matplotlib
 numpy
 pandas
 plotly
-Pyrebase
+Pyrebase==3.0.27
 requests==2.26.0
 seaborn
 streamlit==1.2.0
