@@ -9,5 +9,4 @@ seaborn
 streamlit==1.2.0
 streamlit_vega_lite==0.1.0
 certifi==2021.10.8
-python-jwt==2.0.1
 PyJWT==2.3.0
