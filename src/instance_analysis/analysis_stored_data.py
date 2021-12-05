@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import time
 
 import plotly
 import plotly.graph_objects as go
@@ -18,13 +19,13 @@ def main():
     data_set = " "
 
     st.header("Multiple Instance Analysis")
-    st.markdown("#### Select a Set to Analyze: ")
+    st.markdown("#### Select a Set to Begin Analysis ")
     with st.container():
            col2, col3 = st.columns(2)
            col2.markdown(""" **_Operation_ ** - """ + 'Maxcard')
            col3.markdown("""**_Altruistic Chain Length_** - """ + '2')
 
-    data_set = st.selectbox('Choose Set : ',(None, 'SetA','SetB','SetC', 'SetD', 'SetE', 'SetF'))
+    data_set = st.selectbox("Choose a Set: ",(None, 'SetA','SetB','SetC', 'SetD', 'SetE', 'SetF'))
     if data_set:
         if 'data_set' not in st.session_state:
             st.session_state.data_set = data_set
@@ -34,11 +35,19 @@ def main():
 
             fetch_data(data_set)
 
+
 def fetch_data(data_set):
         db_ref = st.session_state.db_ref
         fetch_war = st.empty()
         with fetch_war.container():
             st.warning('Fetching Data From Database, Please Wait')
+        # start = time.time()
+        # for i in range(1,51):
+        #     name  = data_set + "_" + str(i)
+        #     root_name = db_ref.child(data_set).get(name).get('donor').get()
+        #     donor_list.append(root_name)
+        # end = time.time()
+        # st.write(str(end-start))
         all_files = db_ref.child(data_set).get()
         fetch_war.empty()
         donors_list_stored = []
@@ -56,6 +65,7 @@ def fetch_data(data_set):
                 recipient = file.val().get('recipients')
                 payload = file.val().get('payload')
 
+
                 donors_list_stored.append(donors)
                 recipient_list_stored.append(recipient)
                 payload_list_stored.append(payload)
@@ -65,10 +75,9 @@ def fetch_data(data_set):
                 st.session_state.payload_list_stored = payload_list_stored
 
         if st.session_state.donors_list_stored is not None and st.session_state.recipient_list_store is not None and st.session_state.payload_list_stored is not None:
+            prepare_data(data_set,st.session_state.donors_list_stored,st.session_state.recipient_list_store,st.session_state.payload_list_stored)
 
-            prepare_data(st.session_state.donors_list_stored,st.session_state.recipient_list_store,st.session_state.payload_list_stored)
-
-def prepare_data(donors_list_stored,recipient_list_stored,payload_list_stored):
+def prepare_data(data_set,donors_list_stored,recipient_list_stored,payload_list_stored):
     donor_final_list_stored = []
     recipient_final_list_stored = []
     payload_final_list_stored = []
@@ -77,26 +86,37 @@ def prepare_data(donors_list_stored,recipient_list_stored,payload_list_stored):
         st.session_state.donor_final_list_stored = None
         st.session_state.recipient_final_list_stored = None
         st.session_state.payload_final_list_stored = None
+        # st.write(type(donors_list_stored[0]))
+        # st.write(len(donors_list_stored))
+        # # st.write((donors_list_stored[0].keys()))
+        # # st.write((donors_list_stored[0].values()))
+        if data_set == 'SetB':
+            donor_final_list_stored = donors_list_stored
+            recipient_final_list_stored =recipient_list_stored
+        else:
 
-        for donors_in_file in donors_list_stored:
-            i = 0
-            donor_dict = {}
-            for donors in donors_in_file:
-                if donors is None:
-                    continue
-                donor_dict[str(i)] = donors
-                i = i+1
-            donor_final_list_stored.append(donor_dict)
+            for donors_in_file in donors_list_stored:
+                i = 0
+                donor_dict = {}
+                for donors in donors_in_file:
 
-        for recipients_in_file in recipient_list_stored:
-            j = 0
-            recipient_dict = {}
-            for recipients in recipients_in_file:
-                if recipients is None:
-                    continue
-                recipient_dict[str(j)] = recipients
-                j = j+1
-            recipient_final_list_stored.append(recipient_dict)
+                    if donors is None:
+                        continue
+                    donor_dict[str(i)] = donors
+                    i = i+1
+                donor_final_list_stored.append(donor_dict)
+
+
+
+            for recipients_in_file in recipient_list_stored:
+                j = 0
+                recipient_dict = {}
+                for recipients in recipients_in_file:
+                    if recipients is None:
+                        continue
+                    recipient_dict[str(j)] = recipients
+                    j = j+1
+                recipient_final_list_stored.append(recipient_dict)
 
         for payload_in_file in payload_list_stored:
                 if payload_in_file is None:
@@ -107,7 +127,7 @@ def prepare_data(donors_list_stored,recipient_list_stored,payload_list_stored):
         st.session_state.recipient_final_list_stored = recipient_final_list_stored
         st.session_state.payload_final_list_stored = payload_final_list_stored
 
-    if st.session_state.donor_final_list_stored is not None and st.session_state.recipient_final_list_stored is not None and st.session_state.payload_final_list_stored is not None:
+    # if st.session_state.donor_final_list_stored is not None and st.session_state.recipient_final_list_stored is not None and st.session_state.payload_final_list_stored is not None:
 
         analysis(st.session_state.donor_final_list_stored,st.session_state.recipient_final_list_stored,st.session_state.payload_final_list_stored)
 

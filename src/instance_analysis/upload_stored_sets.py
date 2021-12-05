@@ -9,12 +9,10 @@ kidney_exchange_allocator_url = 'https://kidney-nhs.optimalmatching.com/kidney/f
 def app():
     st.title("KEPIA")
     st.markdown(""" ---Kidney Exchange Program Instance Analyser ---""")
-    st.markdown("#### Data Upload : Only admin")
-    st.markdown("Upload a zip file (10 files only) to store")
 
-    # password = st.text_input("Enter admin password", type="password")
-    # if(password == 'Kepia@123'):
-    main()
+    password = st.text_input("Enter admin password", type="password")
+    if(password == 'Kepia@123'):
+        main()
     # main()
 
 def main():
@@ -25,6 +23,8 @@ def main():
     col1,col2 = st.columns(2)
 
     with col1:
+        st.markdown("#### Data Upload : Only admin")
+        st.markdown("Upload a zip file (10 files only) to store")
 
         filename = st.text_input('Enter the root File name * (File will be stored under this directory)')
         i = int(st.number_input('Enter index  *(files will be stored as filename_index)'))
@@ -33,9 +33,9 @@ def main():
         upload_files_to_database(uploaded_instances, filename,i)
 
         st.markdown("""***""")
-    with col2:
+    with col1:
         st.markdown("#### Data Delete : Only admin")
-        st.markdown("#### To delete Files")
+        st.markdown("Enter the root directory name and index")
 
         filename_del = st.text_input('Enter File name(root directory)')
         i = int(st.number_input('Enter Start index'))
