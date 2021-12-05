@@ -127,7 +127,7 @@ def prepare_data(data_set,donors_list_stored,recipient_list_stored,payload_list_
         st.session_state.recipient_final_list_stored = recipient_final_list_stored
         st.session_state.payload_final_list_stored = payload_final_list_stored
 
-    # if st.session_state.donor_final_list_stored is not None and st.session_state.recipient_final_list_stored is not None and st.session_state.payload_final_list_stored is not None:
+    if st.session_state.donor_final_list_stored is not None and st.session_state.recipient_final_list_stored is not None and st.session_state.payload_final_list_stored is not None:
 
         analysis(st.session_state.donor_final_list_stored,st.session_state.recipient_final_list_stored,st.session_state.payload_final_list_stored)
 
