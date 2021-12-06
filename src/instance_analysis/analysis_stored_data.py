@@ -28,7 +28,8 @@ def main():
            col2.markdown(""" **_Operation_ ** - """ + 'Maxcard')
            col3.markdown("""**_Altruistic Chain Length_** - """ + '2')
 
-    data_set = st.selectbox("Choose a Set: ",(None, 'SetA','SetB','SetC', 'SetD', 'SetE', 'SetF','temp'))
+    data_set = st.selectbox("Choose a Set (Refresh before changing the Set): ",(None, 'SetA','SetB','SetC', 'SetD', 'SetE', 'SetF'))
+
     if data_set:
         if 'data_set' not in st.session_state:
             st.session_state.data_set = data_set
@@ -78,7 +79,7 @@ def fetch_data(data_set):
                 st.session_state.payload_list_stored = payload_list_stored
 
         if st.session_state.donors_list_stored is not None and st.session_state.recipient_list_store is not None and st.session_state.payload_list_stored is not None:
-            prepare_data(data_set,st.session_state.donors_list_stored,st.session_state.recipient_list_store,st.session_state.payload_list_stored)
+                prepare_data(data_set,st.session_state.donors_list_stored,st.session_state.recipient_list_store,st.session_state.payload_list_stored)
 
 def prepare_data(data_set,donors_list_stored,recipient_list_stored,payload_list_stored):
     donor_final_list_stored = []
@@ -135,6 +136,9 @@ def prepare_data(data_set,donors_list_stored,recipient_list_stored,payload_list_
         analysis(st.session_state.donor_final_list_stored,st.session_state.recipient_final_list_stored,st.session_state.payload_final_list_stored)
 
 def analysis(donor_final_list_stored,recipient_final_list_stored,payload_final_list_stored):
+        load_war = st.empty()
+        with load_war.container():
+            st.warning("Please wait for Data Analysis to load")
         with st.expander(const.donors_expand):
             analysis_donor(donor_final_list_stored)
         with st.expander('Analyse Recipients in the Set'):
@@ -143,6 +147,7 @@ def analysis(donor_final_list_stored,recipient_final_list_stored,payload_final_l
             analysis_payload(payload_final_list_stored)
         with st.expander('Analyse Exchange Cycles in the set'):
             analysis_exchanges(payload_final_list_stored)
+        load_war.empty()
 
 
 def analysis_donor(donor_final_list_stored):
