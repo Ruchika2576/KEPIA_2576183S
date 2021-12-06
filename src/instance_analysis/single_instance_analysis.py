@@ -33,6 +33,7 @@ def main():
     with upload_data.container():
         st.title("KEPIA")
         st.markdown(""" ---Kidney Exchange Program Instance Analyser ---""")
+        st.markdown("""***""")
         st.header("Single Instance Analysis")
         st.markdown("#### Data Upload : Upload an instance file for analysis")
         # st.warning('Note: Refresh Before uploading New File!!')
@@ -209,17 +210,18 @@ def donor_data_analysis(single_instance):
         multiple_total = multiple_total + int(v[i] )
 
     with st.container():
-        st.markdown(""" ##### 1. Total Donors : """  + str(total ))
+        st.markdown("""***""")
+        st.markdown(""" ###### 1. Total Donors : """  + str(total ))
 
 
-        st.markdown(""" ##### 2. Donors with 0 matches : """ + no_matches  + ' , Donor Ids :' + (",".join(no_matches_list)) )
+        st.markdown(""" ###### 2. Donors with 0 matches : """ + no_matches  + ' , Donor Ids :' + (",".join(no_matches_list)) )
 
             # show1 = st.checkbox("Click to expand Donor ids ")
             # if show1:
 
         col1, col2 = st.columns(2)
         with col1:
-            st.markdown(""" ##### 3. Altruistic Donors count : """ + alt_donors)
+            st.markdown(""" ###### 3. Altruistic Donors count : """ + alt_donors)
         with st.container():
             st.dataframe(sub[donors['altruistic'] == True ])
             # show2 = st.checkbox("Click to expand Donor ids")
@@ -228,7 +230,7 @@ def donor_data_analysis(single_instance):
 
         col1, col2 = st.columns(2)
         with col1:
-            st.markdown(""" ##### 4. Donors with multiple Sources : """ + str(multiple_total) )
+            st.markdown(""" ###### 4. Donors with multiple Sources : """ + str(multiple_total) )
             for i in range(len(k)):
                 st.markdown( str(v[i]) + ' Sources' +' with ' + str(int(k[i] ))+ ' Donors. ' )
         with col2:
@@ -253,7 +255,7 @@ def donor_data_analysis(single_instance):
 
 
     with st.container():
-
+        st.markdown("""***""")
         st.markdown(""" ##### 5. Specific Donor Info (only non altruistic) - """)
         selected_indices = st.multiselect('Select Donor Ids:', donors.index)
 
@@ -264,6 +266,7 @@ def donor_data_analysis(single_instance):
             render_donor(x,i,donors)
     col1, col2 = st.columns(2)
     with col1:
+        st.markdown("""***""")
         st.markdown(""" ##### 6. Donor Age Statistics : """ )
     # with col2:
     #     show7 = st.checkbox('Click to expand:')
@@ -286,7 +289,8 @@ def donor_data_analysis(single_instance):
             p = altair.Chart(a, title = 'Donor Age Distribution').mark_bar().encode(
             x = 'dage',
             y = 'Donors Count',
-            tooltip = ['dage','Donors Count']
+            tooltip = ['dage','Donors Count'],
+            color = altair.value('#e64d00')
             )
 
             p = p.properties(
@@ -311,6 +315,7 @@ def donor_data_analysis(single_instance):
 
     col1, col2 = st.columns(2)
     with col1:
+        st.markdown("""***""")
         st.markdown(""" ##### 7. Donor Blood Type Distribution - """ )
     # with col2:
     #     show8 = st.checkbox('Click to expand')
@@ -322,7 +327,8 @@ def donor_data_analysis(single_instance):
 
         st.write(pd.DataFrame(btvalues).T)
 
-        fig = px.pie(donors,  names = 'bloodtype',title = 'Donor blood type distribution (hover to see the bloodtype)' , color_discrete_sequence = px.colors.sequential.Cividis)
+        fig = px.pie(donors,  names = 'bloodtype',title = 'Donor blood type distribution (hover to see the bloodtype)' ,
+        color_discrete_sequence = px.colors.sequential.RdBu)
         fig.update_layout(legend=dict(
         orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1),
         title_font_size= 15)
@@ -331,6 +337,7 @@ def donor_data_analysis(single_instance):
 
     col1, col2 = st.columns(2)
     with col1:
+         st.markdown("""***""")
          st.markdown(""" ##### 8. Donor 'Matches Count' Statistics : """ )
     # with col2:
     #      show8 = st.checkbox('Click to expand :')
@@ -347,7 +354,8 @@ def donor_data_analysis(single_instance):
         p = altair.Chart(a, title = 'Matches count Distribution').mark_bar().encode(
         x = 'Matches Count',
         y = 'Frequency',
-        tooltip = ['Matches Count','Frequency']
+        tooltip = ['Matches Count','Frequency'],
+        color = altair.value('#e64d00')
         )
 
         p = p.properties(
@@ -373,6 +381,7 @@ def donor_data_analysis(single_instance):
     # st.write(str(mn))
 
 def filter_data_donors(donors):
+    st.markdown("""***""")
     st.markdown( """ ##### 9. Filter Donors : """)
     dage_low =0
     dage_high =1
@@ -465,6 +474,7 @@ def recipient_data_analysis(recipients):
    total = (recipients.shape[0])
 
    with st.container():
+        st.markdown("""***""")
         st.markdown(""" ##### 1. Total No. of Recipients : """  + str(total ))
 
         # st.markdown(""" ##### 4. Recipients's blood Statistics : """ )
@@ -475,6 +485,7 @@ def recipient_data_analysis(recipients):
            # st.dataframe(list(des.items()))
    col1, col2 = st.columns(2)
    with col1:
+        st.markdown("""***""")
         st.markdown(""" ##### 2. Recipients's Blood type Distribution """ )
         # with col2:
         #      show9 = st.checkbox('Click to expand     ')
@@ -484,7 +495,7 @@ def recipient_data_analysis(recipients):
 
         st.write(pd.DataFrame(btvalues).T)
    with col2:
-       fig = px.pie(recipients,  names = 'bloodtype',title = 'Recipients blood type distribution (hover to see the bloodtype)' , color_discrete_sequence = px.colors.sequential.Cividis)
+       fig = px.pie(recipients,  names = 'bloodtype',title = 'Recipients blood type distribution (hover to see the bloodtype)' , color_discrete_sequence = px.colors.sequential.RdBu)
        fig.update_layout(legend=dict(
        orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1),
        title_font_size= 15)
@@ -499,13 +510,14 @@ def recipient_data_analysis(recipients):
    # with col2:
    #       show10 = st.checkbox('Click to expand ')
    # if show10:
+   st.markdown("""***""")
    st.markdown(""" ##### 3. Recipients Donor Compatibility Distribution : """ )
    col1, col2 = st.columns(2)
    with st.container():
         values = recipients['hasBloodCompatibleDonor'].value_counts().rename('Has Compatible Donor ')
         with col1:
             st.write(pd.DataFrame(values).T)
-        fig = px.pie(recipients,  names = 'hasBloodCompatibleDonor',title = 'Recipients Donor Compatibility distribution ' , color_discrete_sequence = px.colors.sequential.Cividis)
+        fig = px.pie(recipients,  names = 'hasBloodCompatibleDonor',title = 'Recipients Donor Compatibility distribution ' , color_discrete_sequence = px.colors.sequential.RdBu)
         fig.update_layout(legend=dict(
         orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1),
         title_font_size= 15)
@@ -514,6 +526,7 @@ def recipient_data_analysis(recipients):
 
    col1, col2 = st.columns([1,3])
    with col1:
+         st.markdown("""***""")
          st.markdown(""" ##### 4. Recipients cPRA Statistics : """ )
 
    with st.container():
@@ -523,7 +536,7 @@ def recipient_data_analysis(recipients):
         with col1:
             st.dataframe(list(des.items()))
 
-        fig = px.histogram(recipients, x="cPRA",title = 'Recipients cPRA distribution  ' , color_discrete_sequence = px.colors.sequential.Cividis)
+        fig = px.histogram(recipients, x="cPRA",title = 'Recipients cPRA distribution  ' , color_discrete_sequence = px.colors.sequential.RdBu)
         fig.update_layout(legend=dict(
         orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1),
         title_font_size= 15)
@@ -534,6 +547,7 @@ def recipient_data_analysis(recipients):
         filter_data_recipients(recipients)
 
 def filter_data_recipients(recipients):
+    st.markdown("""***""")
 
     st.markdown( """ ##### 5. Filter Recipients  """)
 
@@ -612,6 +626,7 @@ def exchange_cycle_anlysis(single_instance, recipients, payload):
             st.write( str(i) +str('. ')+ str(k) +'  :    ' + str(e.get(k) ) )
             i = i+1
 
+        st.markdown("""***""")
         st.markdown( """ #####  Summary of Exchange Cycles: """+str('(Scroll right)'))
         exc = []
         ids =[]
@@ -646,6 +661,7 @@ def exchange_cycle_anlysis(single_instance, recipients, payload):
             show_exchanges = st.checkbox("""Click to see all Exchange cycles""")
 
 
+
         with col2:
             show12 = st.markdown(' Distrbution of cylces and chains in the distribution ')
             # st.markdown("""" Cycles with alternatives - """ + str(df['alt'][len(df['alt']) > 2].sum()))
@@ -657,8 +673,16 @@ def exchange_cycle_anlysis(single_instance, recipients, payload):
                 labels = ['2 cycles ' + str(a) +'%','3 cycles '+ str(b) +'%','short chains ' + str(c) +'%','long chains '+ str(d) +'%']
                 values = [round(a,2),round(b,2),round(c,2),round(d,2)]
                 fig, ax = plt.subplots()
-                ax.pie(values, labels = labels, colors = ['#0077e6','#0059b3','#003366','#001a33'])
-                st.pyplot(fig)
+                wedges, texts, autotexts = ax.pie(values,  colors = ['#ffbb99','#e64d00','#cc0044','#800040'],
+                autopct = '%1.1f%%',
+                textprops={ 'color':'white'})
+
+                ax.legend(wedges, ['Two cycles','Three cycles','Short Chains','Long Chains'],
+                 loc="center left",
+                 bbox_to_anchor=(1, 0, 0.5, 1), mode = 'expand')
+
+
+                st.pyplot(fig,transparent = True)
 
         st.markdown( """ *** """)
         if show_exchanges:
@@ -689,12 +713,13 @@ def exchange_cycle_anlysis(single_instance, recipients, payload):
 
         col1, col2 = st.columns(2)
         with col1:
+
               st.markdown(""" #####  Exchange Cycle Weight Statistics : """ )
               des = pd.to_numeric(df['weight']).describe().to_dict()
               des['median'] = df['weight'].median()
               st.dataframe(list(des.items()))
         with col2:
-             fig = px.histogram(df, x="weight",title = 'Exchange Cycle Weight distribution  ' , color_discrete_sequence = px.colors.sequential.Cividis)
+             fig = px.histogram(df, x="weight",title = 'Exchange Cycle Weight distribution  ' , color_discrete_sequence = px.colors.sequential.RdBu)
              fig.update_layout(legend=dict(
              orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1),
              title_font_size= 13)
@@ -703,12 +728,13 @@ def exchange_cycle_anlysis(single_instance, recipients, payload):
 
         col1, col2 = st.columns(2)
         with col1:
+              st.markdown("""***""")
               st.markdown(""" ##### Backarcs in Exchange Data : """ )
               values = df['backarcs'].value_counts().rename('Cycles Backarcs distribution ')
 
               st.write(values)
         with col2:
-            fig = px.pie(df,  names = 'backarcs',title = 'Exchange Cycles Backarcs distribution' , color_discrete_sequence = px.colors.sequential.Cividis)
+            fig = px.pie(df,  names = 'backarcs',title = 'Exchange Cycles Backarcs distribution' , color_discrete_sequence = px.colors.sequential.RdBu)
             fig.update_layout(legend=dict(
             orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1),
             title_font_size= 13)
@@ -767,10 +793,20 @@ def all_cycle_anlysis(single_instance, recipients, payload):
         labels = ['2 cycles ' + str(a) +'%','3 cycles '+ str(b) +'%','short chains ' + str(c) +'%','long chains '+ str(d) +'%']
         values = [round(a,2),round(b,2),round(c,2),round(d,2)]
         fig, ax = plt.subplots()
-        ax.pie(values, labels = labels, colors = ['#0077e6','#0059b3','#003366','#001a33'])
-        st.pyplot(fig)
-            # st.plotly_chart(fig)
+        wedges, texts, autotexts = ax.pie(values,
+         colors = ['#ffbb99','#e64d00','#cc0044','#800040'],
+         autopct = '%1.1f%%',
+         textprops={ 'color':'white'})
 
+        ax.legend(wedges, ['Two cycles','Three cycles','Short Chains','Long Chains'],
+          loc="center left",
+          bbox_to_anchor=(1, 0, 0.5, 1), mode = 'expand')
+
+
+
+        st.pyplot(fig, transparent = True)
+            # st.plotly_chart(fig)
+    st.markdown("""***""")
     st.markdown(""" ##### 3. Expand Specific Cycles - """)
 
     col1,col2 = st.columns([2,1])
@@ -788,6 +824,7 @@ def all_cycle_anlysis(single_instance, recipients, payload):
             st.write(exp_df)
     col1, col2 = st.columns([1,3])
     with col1:
+          st.markdown("""***""")
           st.markdown(""" ##### 4. Cycle Weight Statistics : """ )
     #       show12 = st.checkbox('  Click to expand     ')
     # if show12:
@@ -797,7 +834,7 @@ def all_cycle_anlysis(single_instance, recipients, payload):
          des['median'] = df['weight'].median()
          st.dataframe(list(des.items()))
     with col2:
-         fig = px.histogram(df, x="weight",title = 'Cycle Weight distribution  ' , color_discrete_sequence = px.colors.sequential.Cividis)
+         fig = px.histogram(df, x="weight",title = 'Cycle Weight distribution  ' , color_discrete_sequence = px.colors.sequential.RdBu)
          fig.update_layout(legend=dict(
          orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1),
          title_font_size= 17)
@@ -805,11 +842,12 @@ def all_cycle_anlysis(single_instance, recipients, payload):
 
     col1, col2 = st.columns(2)
     with col1:
+            st.markdown("""***""")
             st.markdown(""" ##### 5. Backarcs : """ )
             values = df['backarcs'].value_counts().rename('Cycles Backarcs distribution ').T
             st.write(values)
     with col2:
-            fig = px.pie(df,  names = 'backarcs',title = 'Cycles Backarcs distribution' , color_discrete_sequence = px.colors.sequential.Cividis)
+            fig = px.pie(df,  names = 'backarcs',title = 'Cycles Backarcs distribution' , color_discrete_sequence = px.colors.sequential.RdBu)
             fig.update_layout(legend=dict(
             orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1),
             title_font_size= 17)
