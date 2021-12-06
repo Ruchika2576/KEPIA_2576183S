@@ -9,6 +9,7 @@ kidney_exchange_allocator_url = 'https://kidney-nhs.optimalmatching.com/kidney/f
 def app():
     st.title("KEPIA")
     st.markdown(""" ---Kidney Exchange Program Instance Analyser ---""")
+    st.markdown("""***""")
 
     password = st.text_input("Enter admin password", type="password")
     if(password == 'Kepia@123'):

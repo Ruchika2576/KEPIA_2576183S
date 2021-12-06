@@ -32,6 +32,7 @@ def main():
     with multi_upload_data.container():
         st.title("KEPIA")
         st.markdown(""" ---Kidney Exchange Program Instance Analyser ---""")
+        st.markdown("""***""")
         st.header("Multiple Instance Analysis")
         st.markdown("#### Data Upload : Upload a zip file of instances for analysis")
 
@@ -790,7 +791,7 @@ def recipient_data_analysis(recipients_list):
                     with colb8:
                         st.plotly_chart(fig, use_container_width=True)
 
-        
+
 
 
 def all_cycle_anlysis(payload_list):
