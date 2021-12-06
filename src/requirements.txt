@@ -1,4 +1,4 @@
-altair
+altair==4.1.0
 matplotlib
 numpy
 pandas
@@ -6,5 +6,7 @@ plotly
 Pyrebase
 requests
 seaborn
-streamlit
-streamlit_vega_lite
+streamlit==1.2.0
+streamlit_vega_lite==0.1.0
+certifi==2021.10.8
+PyJWT==2.3.0

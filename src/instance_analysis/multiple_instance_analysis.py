@@ -32,6 +32,7 @@ def main():
     with multi_upload_data.container():
         st.title("KEPIA")
         st.markdown(""" ---Kidney Exchange Program Instance Analyser ---""")
+        st.markdown("""***""")
         st.header("Multiple Instance Analysis")
         st.markdown("#### Data Upload : Upload a zip file of instances for analysis")
 
@@ -779,16 +780,17 @@ def recipient_data_analysis(recipients_list):
                 submit_donor_filter = st.form_submit_button('Plot Scatter plot')
                 title = 'Correlation between ' + x_label + 'and' + y_label
 
-        if(submit_donor_filter):
-                fig = px.scatter(recipients_instances_fin_df,x = recipients_instances_fin_df[x_label],
-                y = recipients_instances_fin_df[y_label],
-                title = title ,
-                color_discrete_sequence = px.colors.sequential.Cividis)
-                fig.update_layout(legend=dict(
-                orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1),
-                title_font_size= 15)
-                with colb8:
-                    st.plotly_chart(fig, use_container_width=True)
+            if(submit_donor_filter):
+                    fig = px.scatter(recipients_instances_fin_df,x = recipients_instances_fin_df[x_label],
+                    y = recipients_instances_fin_df[y_label],
+                    title = title ,
+                    color_discrete_sequence = px.colors.sequential.Cividis)
+                    fig.update_layout(legend=dict(
+                    orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1),
+                    title_font_size= 15)
+                    with colb8:
+                        st.plotly_chart(fig, use_container_width=True)
+
 
 
 
