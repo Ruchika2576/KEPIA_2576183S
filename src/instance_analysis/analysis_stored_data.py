@@ -1284,7 +1284,7 @@ def analysis_exchanges(payload_final_list_stored):
                     fig = px.scatter(exchange_data_final_df_stored,x = exchange_data_final_df_stored[x_label],
                     y = exchange_data_final_df_stored[y_label],
                     title = title ,
-                    color_discrete_sequence = px.colors.sequential.RbBu)
+                    color_discrete_sequence = px.colors.sequential.RdBu )
                     fig.update_layout(legend=dict(
                     orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1),
                     title_font_size= 15)
