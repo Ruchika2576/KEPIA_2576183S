@@ -9,7 +9,7 @@ def get_DB_Config():
       "authDomain": "kepia-rdb.firebaseapp.com",
       "projectId": "kepia-rdb",
       "databaseURL" : 'https://kepia-rdb-default-rtdb.firebaseio.com/',
-      "serviceAccount" : 'kepia-rdb-firebase-adminsdk-ffg2b-b67b5ea05c.json',
+      "serviceAccount" : 'src/utils/kepia-rdb-firebase-adminsdk-ffg2b-b67b5ea05c.json',
       "storageBucket": "kepia-rdb.appspot.com",
       "messagingSenderId": "368273954603",
       "appId": "1:368273954603:web:b0a04add2e56f79fd6576e",
