@@ -1,6 +1,7 @@
 import streamlit as st
 from utils import constants as const
 
+# The following class creates a navigation for each added page
 class Navigation:
 
     def __init__(self) -> None:

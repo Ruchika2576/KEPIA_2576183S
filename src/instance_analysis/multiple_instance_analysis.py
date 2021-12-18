@@ -14,47 +14,46 @@ import altair as altair
 import matplotlib.pyplot as plt
 import plotly.express as px
 
+from utils import constants as const
+from utils import input_utils
+from utils import api_utils
+from sub_component_analysis import multiple_donor_analysis, multiple_recipient_analysis, multipl_all_cycle_analysis, multipl_exchange_cycle_analysis
 
-kidney_exchange_allocator_url = 'https://kidney-nhs.optimalmatching.com/kidney/find.json'
+
 def app():
-
+    # the main execution for analysis starts here
     main()
 
 def main():
     kep_instance_list = []
     recipients_list = []
-
-
-
-
-
     multi_upload_data = st.empty()
     with multi_upload_data.container():
-        st.title("KEPIA")
-        st.markdown(""" ---Kidney Exchange Program Instance Analyser ---""")
-        st.markdown("""***""")
-        st.header("Multiple Instance Analysis")
-        st.markdown("#### Data Upload : Upload a zip file of instances for analysis")
+        st.title(const.title)
+        st.markdown(const.full_form)
+        st.markdown(const.horizontal_line)
+        st.header(const.multiple_instance_heading)
+        st.markdown(const.multiple_file_upload)
+        # reading the input options and  zip file
 
-        operation, altruistic_chain_length = get_operation_and_chain_length()
+        operation, altruistic_chain_length = input_utils.get_operation_and_chain_length()
 
         if 'payload_list' not in st.session_state and 'multi_uploaded_zip_instance' not in st.session_state:
             payload_list =None
             multi_uploaded_zip_instance =None
-            payload_list, multi_uploaded_zip_instance = multi_upload_zip_file(operation, altruistic_chain_length)
+            payload_list, multi_uploaded_zip_instance = input_utils.multi_upload_zip_file(operation, altruistic_chain_length)
             st.session_state.dup1 = payload_list
             st.session_state.dup2 = multi_uploaded_zip_instance
-
+        # displaying message on file upload
             if payload_list:
-                st.info('File Uploaded.Begin Analysis.')
-
+                st.success(const.success2)
 
         if 'single_begin_analysis_butto' not in st.session_state:
             st.session_state.single_begin_analysis_butto = False
-        single_begin_analysis_butto = st.button("Begin Analysis ")
+        single_begin_analysis_butto = st.button(const.multiple_begin_button)
 
 
-    if (st.session_state.single_begin_analysis_butto or( single_begin_analysis_butto and st.session_state.dup2)):
+    if (st.session_state.single_begin_analysis_butto  or ( single_begin_analysis_butto and st.session_state.dup2)):
 
          st.session_state.payload_list = st.session_state.dup1
          st.session_state.multi_uploaded_zip_instance = st.session_state.dup2
@@ -65,196 +64,38 @@ def main():
 
          if 'recipients_list' not in st.session_state and 'kep_instance_list' not in st.session_state:
              for instance in multi_uploaded_zip_instance:
-
-                recipients_list.append(instance['recipients'])
-                kep_instance_list.append(instance['data'])
+                 # Extracting, recipient and donors list
+                recipients_list.append(instance[const.recipients])
+                kep_instance_list.append(instance[const.data])
                 st.session_state.recipients_list = recipients_list
                 st.session_state.kep_instance_list = kep_instance_list
 
              with st.container():
                     col2, col3 = st.columns(2)
                     # col1.markdown(""" **_Uploaded File_** - """ + str(filename))
-                    col2.markdown(""" **_Operation_ ** - """ + str(operation))
-                    col3.markdown("""**_Altruistic Chain Length_** - """ + str(altruistic_chain_length))
+                    col2.markdown(const.operation_heading + str(operation))
+                    col3.markdown(const.alt_heading + str(altruistic_chain_length))
          if 'recipients_list'  in st.session_state and 'kep_instance_list' in st.session_state:
-
+             # after fetching data beginning analysis
             analysis(st.session_state.kep_instance_list,st.session_state.recipients_list,st.session_state.payload_list )
 
     elif (single_begin_analysis_butto and not multi_uploaded_zip_instance):
-         st.error('No file uploaded! Refresh.')
-
-
-
-
-def multi_upload_zip_file(operation, altruistic_chain_length):
-    multi_uploaded_file = None
-    instance = None
-    payload_list = None
-    cola, colb = st.columns([2,1])
-
-    try:
-
-        multi_uploaded_file = st.file_uploader("Choose a file : ", type = ['zip'], key = 'multi_file')
-
-    except Exception as e:
-        st.error("!!! Exception has occurred while multi_uploading the file try again, If Exception persists contact support." )
-        st.error(e)
-
-
-    if multi_uploaded_file is not None:
-        try:
-            instance = get_zip_contents(multi_uploaded_file)
-            st.markdown(""" **Zip File Upload and Extracted Successfully. Total Number of files extracted - **""" + str(len(instance)))
-            st.warning('File Uploading, Please Wait')
-            payload_list = get_data_NHS_Optimal(instance,operation, altruistic_chain_length)
-            #payload_list = ioloop.IOLoop.current().run_sync(get6(multi_uploaded_zip_instance,operation, altruistic_chain_length))
-
-        except Exception as e:
-            st.error("!!! Exception has occurred while fetching data from external API. Please wait or contact if issue persist!!" )
-            st.error(e)
-
-#start = time.time()
-    #payload_list = get_all_response_from_KAL(multi_uploaded_zip_instance,operation, altruistic_chain_length)
-
-    #end = time.time()
-    # st.write('Length of the final payload list:' + str(len(payload_list)))
-    #st.write('total time taken for the entire process:' + str((end-start)/60) + 'mins')
-
-    return payload_list, instance
-
-def get_zip_contents(multi_uploaded_file):
-    instance_list = []
-    zbytes = multi_uploaded_file.getvalue()
-    zf = zipfile.ZipFile(io.BytesIO(zbytes), "r")
-
-    for fileinfo in zf.infolist():
-
-        if fileinfo.file_size == 0:
-            continue
-        if str(fileinfo.filename).startswith('__MACOSX/'):
-            continue
-        if '.DS_Store' in str(fileinfo.filename):
-            continue
-
-        with zf.open(fileinfo.filename, 'r') as jsonfile:
-            contents = jsonfile.read()
-            jsonobj = json.loads(contents)
-
-        instance_list.append(jsonobj)
-    return instance_list
-
-def get_operation_and_chain_length():
-    col1, col2 =st.columns(2)
-    with col1:
-        operation = st.selectbox('Choose Operation : ',('optimal','maxcard','pairs'))
-    with col2:
-        altruistic_chain_length = st.selectbox('Choose Altruistic Chain Length :',('1','2'))
-
-    return operation,altruistic_chain_length
-
-#multithread Processing
-def get3(session,kep_instance_obj):
-
-    response = session.send(requests.Request('POST',kidney_exchange_allocator_url, data = kep_instance_obj ).prepare())
-    payload =  response.json()
-
-    return payload
-
-def get4(multi_uploaded_zip_instance,operation,altruistic_chain_length ):
-    #create an aiohttp session, to handle all the requests
-    payload_list =[]
-    instance_obj_list = []
-    future_list = []
-    for instance in multi_uploaded_zip_instance:
-
-        #this function will perform the actual request
-        kep_instance = instance['data']
-
-        #Creating request params to call the Kidney Exchange allocator
-        kep_instances_dict = {'data': kep_instance}
-
-        kep_instance_obj  = {
-        'operation': operation,
-        'altruistic_chain_length': int(altruistic_chain_length),
-        'data': json.dumps(kep_instances_dict)
-        }
-        instance_obj_list.append(kep_instance_obj)
-
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers = 200) as executor:
-        with requests.Session() as session:
-
-            for kep_instance_obj in instance_obj_list:
-
-                futures = executor.submit(get3,session = session ,kep_instance_obj =kep_instance_obj)
-                future_list.append(futures)
-
-            for future in concurrent.futures.as_completed(future_list):
-                #st.write('length ' + str(len(future_list)))
-                try:
-                    payload_list.append(future.result())
-                except requests.ConnectTimeout:
-                    print("ConnectTimeout.")
-
-    return payload_list
-
-@st.cache(suppress_st_warning = True)
-def get_data_NHS_Optimal(multi_uploaded_zip_instance,operation, altruistic_chain_length):
-    length = len(multi_uploaded_zip_instance)
-    rem = length % 50
-    loops = (length-rem)//50
-    payload_list = None
-    final_payload_list = []
-
-    k = 0
-    b = 0
-    a = 0
-
-    if len(multi_uploaded_zip_instance) > 50:
-        for i in range(0,loops):
-            # st.write('---------beginning loop :' + str(i) +'----------')
-            a = k+49
-            sub_instances = []
-            for j in range(k,a+1):
-                sub_instances.append(multi_uploaded_zip_instance[j])
-            st.write('length of sub list:', str(len(sub_instances)))
-            start = time.time()
-            st.write('sleeping for 60 seconds')
-            sleep(400)
-            payload_list = get4(sub_instances,operation,altruistic_chain_length )
-            final_payload_list.extend(payload_list)
-            end = time.time()
-            st.write('time taken execute this loop' + str(i) + ':' + str((end-start)/60) + 'minutes')
-            k = a+1
-
-
-        if rem !=0:
-            # st.write('---------remaining list----------')
-            sub_instances = []
-            for i in range(a, length):
-                sub_instances.append(multi_uploaded_zip_instance[i])
-            st.write('length of sub list:', str(len(sub_instances)))
-            payload_list = get4(sub_instances,operation,altruistic_chain_length )
-            final_payload_list.extend(payload_list)
-
-        return final_payload_list
-
-    else:
-        # st.write('---------List is less than 50----------')
-        payload_list = get4(multi_uploaded_zip_instance,operation,altruistic_chain_length )
-        return payload_list
+         st.error(const.error6)
 
 def analysis(kep_instance_list,recipients_list,payload_list ):
-        st.title("KEPIA")
-        st.warning('Note: Refresh to upload New File!!')
-        with st.expander('Analyse Donors in the Set'):
-            donor_data_analysis(kep_instance_list)
-        with st.expander('Analyse Recipients in the Set'):
-            recipient_data_analysis(recipients_list)
-        with st.expander('Analyse All Cycles in the set'):
-            all_cycle_anlysis(payload_list)
-        with st.expander('Analyse Exchange Cycles in the set'):
-            exchange_cycle_anlysis(payload_list)
+        st.title(const.title)
+        st.warning(const.warning1)
+
+        with st.expander(const.donor_expand_multiple):
+            multiple_donor_analysis.analysis_donor(kep_instance_list, 'donor_instances_df')
+        with st.expander(const.recipient_expand_multiple):
+            multiple_recipient_analysis.analysis_recipient(recipients_list,'recipients_instances_fin_df')
+        with st.expander(const.all_cycle_expand_multiple):
+            multipl_all_cycle_analysis.analysis_multiple_payload(payload_list,'payload_fin_df')
+            # all_cycle_anlysis(payload_list)
+        with st.expander(const.exchange_cycle_expand_multiple):
+            multipl_exchange_cycle_analysis.analysis_multiple_exchanges(payload_list,'exchange_data_final_df')
+            # exchange_cycle_anlysis(payload_list)
 
 def donor_data_analysis(donors_list):
         donor_instance_list_data = None
@@ -540,9 +381,6 @@ def donor_data_analysis(donors_list):
                     with colb8:
                         st.plotly_chart(fig, use_container_width=True)
 
-
-
-
 def recipient_data_analysis(recipients_list):
     recipients_instances_data = None
     recipients_instances_fin_df = None
@@ -791,12 +629,10 @@ def recipient_data_analysis(recipients_list):
                     with colb8:
                         st.plotly_chart(fig, use_container_width=True)
 
-
-
-
 def all_cycle_anlysis(payload_list):
         if payload_list in st.session_state:
             payload_list = st.session_state.payload_list
+
         payload_all_cycle_data = None
         payload_fin_df = None
 
@@ -835,15 +671,15 @@ def all_cycle_anlysis(payload_list):
 
                   cycle_2, cycle_3, s_chain, l_chain = calculate_cycles_chains(payload,all_ids)
 
-                  all_cycle_dataframe['Two cycles'] = cycle_2
-                  all_cycle_dataframe['Three cycles'] = cycle_3
-                  all_cycle_dataframe['Short Chains'] = s_chain
-                  all_cycle_dataframe['Long Chains'] = l_chain
+                  all_cycle_dataframe[const.sub_heading_8] = cycle_2
+                  all_cycle_dataframe[const.three_cycles] = cycle_3
+                  all_cycle_dataframe[const.short_chains] = s_chain
+                  all_cycle_dataframe[const.long_chains] = l_chain
 
-                  no_two_cycles = all_cycle_dataframe['Two cycles'].sum()
-                  no_three_cycles = all_cycle_dataframe['Three cycles'].sum()
-                  no_of_short_chains = all_cycle_dataframe['Short Chains'].sum()
-                  no_of_long_chains = all_cycle_dataframe['Long Chains'].sum()
+                  no_two_cycles = all_cycle_dataframe[const.sub_heading_8].sum()
+                  no_three_cycles = all_cycle_dataframe[const.three_cycles].sum()
+                  no_of_short_chains = all_cycle_dataframe[const.short_chains].sum()
+                  no_of_long_chains = all_cycle_dataframe[const.long_chains].sum()
 
                   weight_avg = all_cycle_dataframe['weight'].mean()
                   weight_median = all_cycle_dataframe['weight'].median()
@@ -1030,8 +866,6 @@ def all_cycle_anlysis(payload_list):
                     with colb8:
                         st.plotly_chart(fig, use_container_width=True)
 
-
-
 def exchange_cycle_anlysis(payload_list):
     if payload_list in st.session_state:
         payload_list = st.session_state.payload_list
@@ -1073,15 +907,15 @@ def exchange_cycle_anlysis(payload_list):
                   no_exc_cycles.append(len(exc_cycle_df))
 
                   cycle_2, cycle_3, s_chain, l_chain = calculate_cycles_chains(payload,exc_cycle_ids)
-                  exc_cycle_df['Two cycles'] = cycle_2
-                  exc_cycle_df['Three cycles'] = cycle_3
-                  exc_cycle_df['Short Chains'] = s_chain
-                  exc_cycle_df['Long Chains'] = l_chain
+                  exc_cycle_df[const.sub_heading_8] = cycle_2
+                  exc_cycle_df[const.three_cycles] = cycle_3
+                  exc_cycle_df[const.short_chains] = s_chain
+                  exc_cycle_df[const.long_chains] = l_chain
 
-                  no_of_two_cycles_l.append(exc_cycle_df['Two cycles'].sum())
-                  no_of_three_cycles_l.append(exc_cycle_df['Three cycles'].sum())
-                  no_of_short_chains_l.append(exc_cycle_df['Short Chains'].sum())
-                  no_of_long_chains_l.append(exc_cycle_df['Long Chains'].sum())
+                  no_of_two_cycles_l.append(exc_cycle_df[const.sub_heading_8].sum())
+                  no_of_three_cycles_l.append(exc_cycle_df[const.three_cycles].sum())
+                  no_of_short_chains_l.append(exc_cycle_df[const.short_chains].sum())
+                  no_of_long_chains_l.append(exc_cycle_df[const.long_chains].sum())
 
                   weight_avg_l.append(exc_cycle_df['weight'].mean())
                   weight_median_l.append(exc_cycle_df['weight'].median())
@@ -1276,14 +1110,6 @@ def exchange_cycle_anlysis(payload_list):
                 with colb8:
                     st.plotly_chart(fig, use_container_width=True)
 
-
-
-
-
-
-
-
-
 def calculate_cycles_chains(payload,ids):
     cycle_2 = []
     cycle_3 = []
@@ -1336,7 +1162,6 @@ def per_cycle(df):
             type = 'Three cycle'
     return c2,c3,sc,lc,type
 
-
 def count_compatible(recipients):
   ncompatible,compatible = 0,0
   values = recipients['hasBloodCompatibleDonor'].value_counts()
@@ -1376,129 +1201,3 @@ def count_blood_distribution(donor):
         if bt =='AB':
           ab = btvalues[idx]
       return a,o,b,ab
-# #direct call
-# def get_all_response_from_KAL(multi_uploaded_zip_instance,operation, altruistic_chain_length):
-#     payload_list = []
-#     a = []
-#
-#     for instance in multi_uploaded_zip_instance:
-#         payload = get_response_from_KAL(instance, operation,altruistic_chain_length)
-#         payload_list.append(payload)
-#     st.write('payload list' + str(len(payload_list)))
-#
-#
-#
-#     return payload_list
-#
-# def get_response_from_KAL(instance, operation,altruistic_chain_length):
-#     #Extracting the json dictionary into KEP instances and recipients
-#
-#     kep_instance = instance['data']
-#     recipients = instance['recipients']
-#
-#     #Creating request params to call the Kidney Exchange allocator
-#     kep_instances_dict = {'data': kep_instance}
-#
-#     kep_instance_obj  = {
-#     'operation': operation,
-#     'altruistic_chain_length': int(altruistic_chain_length),
-#     'data': json.dumps(kep_instances_dict)
-#     }
-#
-#     try:
-#         response = requests.post(kidney_exchange_allocator_url, data = kep_instance_obj)
-#     except Exception as exc:
-#         st.error('Error ocurred while fetching data from https://kidney-nhs.optimalmatching.com/' )
-#         st.error(exc)
-#
-#     if response.status_code == 200:
-#         payload = response.json()
-#     else:
-#         st.error(f"Request returned: {response.status_code} : '{response.reason}'")
-#         raise RuntimeError('Error in Response from https://kidney-nhs.optimalmatching.com/')
-#
-#
-#     return payload
-
-
-
-
-
-    #payload_list = get4(multi_uploaded_zip_instance,operation, altruistic_chain_length)
-
-
-# @gen.coroutine
-# def get6(multi_uploaded_zip_instance,operation,altruistic_chain_length ):
-#     #create an aiohttp session, to handle all the requests
-#     payload_list =[]
-#     instance_obj_list = []
-#     future_list = []
-#     http_client = httpclient.AsyncHTTPClient()
-#
-#     for instance in multi_uploaded_zip_instance:
-#
-#         #this function will perform the actual request
-#         kep_instance = instance['data']
-#
-#         #Creating request params to call the Kidney Exchange allocator
-#         kep_instances_dict = {'data': kep_instance}
-#
-#         kep_instance_obj  = {
-#         'operation': operation,
-#         'altruistic_chain_length': int(altruistic_chain_length),
-#         'data': json.dumps(kep_instances_dict)
-#         }
-#         instance_obj_list.append(kep_instance_obj)
-#
-#         request = httpclient.HTTPRequest(kidney_exchange_allocator_url,body = kep_instance_obj, method = 'POST' )
-#         response = yield http_client.fetch(request)
-#         payload_list.append(response)
-#
-#     return payload_list
-# #asynchronous call
-# async def get1(multi_uploaded_zip_instance,operation,altruistic_chain_length ):
-#     #create an aiohttp session, to handle all the requests
-#     payload_list =[]
-#     i = 0
-#     async with aiohttp.ClientSession() as session:
-#         #create task: each individual requests
-#         tasks = []
-#         for instance in multi_uploaded_zip_instance:
-#
-#             #this function will perform the actual request
-#             kep_instance = instance['data']
-#
-#             #Creating request params to call the Kidney Exchange allocator
-#             kep_instances_dict = {'data': kep_instance}
-#
-#             kep_instance_obj  = {
-#             'operation': operation,
-#             'altruistic_chain_length': int(altruistic_chain_length),
-#             'data': json.dumps(kep_instances_dict)
-#             }
-#
-#             # task = asyncio.ensure_future(get2(session, kep_instance_obj))
-#             task = get2(session, kep_instance_obj)
-#             tasks.append(task)
-#
-#         payload_list = await asyncio.gather(*tasks)
-#         return payload_list
-#
-# async def get2(session,kep_instance_obj):
-#
-#     async with session.post(kidney_exchange_allocator_url, data = kep_instance_obj ) as response:
-#
-#         payload = await response.json()
-#
-#         return payload
-
-#Reading Files from firebase
-# def get_files_from_firebase():
-#     storage = get_firebase_connection()
-#     all_files = storage.list_files()
-#     instance_list = []
-#     for file in all_files:
-#         url = storage.child(file.name).get_url(None)
-#         f = urllib.request.urlopen(url).read()
-#         instance = json.loads(f)
-#         instance_list.append(instance)
