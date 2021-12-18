@@ -8,50 +8,41 @@ import seaborn as sn
 import matplotlib.pyplot as plt
 import plotly.express as px
 from utils import constants as const
-
-
+from sub_component_analysis import multiple_donor_analysis, multiple_recipient_analysis, multipl_all_cycle_analysis, multipl_exchange_cycle_analysis
 
 def app():
-    st.title("KEPIA")
-    st.markdown(""" ---Kidney Exchange Program Instance Analyser ---""")
-    st.markdown("""***""")
+    st.title(const.title)
+    st.markdown(const.full_form)
+    st.markdown(const.horizontal_line)
+    # the main execution for analysis starts here
     main()
 
 def main():
     data_set = " "
 
     st.header(const.stored_heading)
-    st.markdown("#### Select a Set to Begin Analysis ")
+    st.markdown(const.select_stored_set)
     with st.container():
-           st.markdown("The exchange Cycles are stored with the following parameters - ")
+           st.markdown(const.stored_set_option)
            col2, col3 = st.columns(2)
-           col2.markdown(""" **_Operation_ ** - """ + 'Maxcard')
-           col3.markdown("""**_Altruistic Chain Length_** - """ + '2')
+           col2.markdown(const.operation_heading + 'Maxcard')
+           col3.markdown(const.alt_heading + '2')
 
-    data_set = st.selectbox("Choose a Set (Refresh before changing the Set): ",(None, 'SetA','SetB','SetC', 'SetD', 'SetE', 'SetF'))
+    data_set = st.selectbox(const.select_set_message,const.set_options)
 
     if data_set:
         if 'data_set' not in st.session_state:
             st.session_state.data_set = data_set
 
-
         if st.session_state.data_set is not None:
-
             fetch_data(data_set)
-
 
 def fetch_data(data_set):
         db_ref = st.session_state.db_ref
         fetch_war = st.empty()
         with fetch_war.container():
-            st.warning('Fetching Data From Database, Please Wait')
-        # start = time.time()
-        # for i in range(1,51):
-        #     name  = data_set + "_" + str(i)
-        #     root_name = db_ref.child(data_set).get(name).get('donor').get()
-        #     donor_list.append(root_name)
-        # end = time.time()
-        # st.write(str(end-start))
+            st.warning(const.warning3)
+
         all_files = db_ref.child(data_set).get()
         fetch_war.empty()
         donors_list_stored = []
@@ -94,7 +85,7 @@ def prepare_data(data_set,donors_list_stored,recipient_list_stored,payload_list_
         # st.write(len(donors_list_stored))
         # # st.write((donors_list_stored[0].keys()))
         # # st.write((donors_list_stored[0].values()))
-        if data_set == 'SetB' :
+        if data_set == 'SetB' or data_set == 'temp':
             donor_final_list_stored = donors_list_stored
             recipient_final_list_stored =recipient_list_stored
         else:
@@ -138,619 +129,16 @@ def prepare_data(data_set,donors_list_stored,recipient_list_stored,payload_list_
 def analysis(donor_final_list_stored,recipient_final_list_stored,payload_final_list_stored):
         load_war = st.empty()
         with load_war.container():
-            st.warning("Please wait for Data Analysis to load")
-        with st.expander(const.donors_expand):
-            analysis_donor(donor_final_list_stored)
-        with st.expander('Analyse Recipients in the Set'):
-            analysis_recipient(recipient_final_list_stored)
-        with st.expander('Analyse All Cycles in the set'):
-            analysis_payload(payload_final_list_stored)
-        with st.expander('Analyse Exchange Cycles in the set'):
-            analysis_exchanges(payload_final_list_stored)
+            st.warning(const.warning4)
+        with st.expander(const.donor_expand_multiple):
+            multiple_donor_analysis.analysis_donor(donor_final_list_stored,'donor_instances_df_stored')
+        with st.expander(const.recipient_expand_multiple):
+            multiple_recipient_analysis.analysis_recipient(recipient_final_list_stored,'recipients_instances_fin_df_stored')
+        with st.expander(const.all_cycle_expand_multiple):
+            multipl_all_cycle_analysis.analysis_stored_payload(payload_final_list_stored,'payload_fin_df_stored')
+        with st.expander(const.exchange_cycle_expand_multiple):
+            multipl_exchange_cycle_analysis.analysis_stored_exchanges(payload_final_list_stored,'exchange_data_final_df_stored')
         load_war.empty()
-
-
-def analysis_donor(donor_final_list_stored):
-
-    donor_instance_list_data_stored = None
-    donor_instances_df_stored = None
-
-    donors_count = []
-    no_matches_list = []
-    avg_total_matches_list = []
-    max_matches_list = []
-    min_matches_list =[]
-    non_alt_list = []
-    alt_list = []
-    multiple_sources_l =[]
-    avg_age_l =[]
-    med_age_l =[]
-    min_age_l =[]
-    max_age_l =[]
-    a_type_l = []
-    b_type_l = []
-    o_type_l = []
-    ab_type_l = []
-
-    if 'donor_instances_df_stored' not in st.session_state:
-        instance_ids = list(range(1, len(donor_final_list_stored)+1))
-
-        for donor_sub in donor_final_list_stored:
-                number_of_donors = 0
-                no_matches = 0
-                average_total_matches = 0
-                max_matches = 0
-                min_matches = 0
-                non_alt = 0
-                alt = 0
-                multiple_sources = 0
-                avg_age = 0
-                med_age = 0
-                min_age = 0
-                max_age = 0
-                a,o,b,ab = 0,0,0,0
-
-                donor = pd.DataFrame(donor_sub).T
-                donor['matcoun'] = donor.apply(lambda row: (count_matches(row)) ,axis = 1)
-
-                #Calculating values
-                number_of_donors = donor.shape[0]
-                average_total_matches = donor['matcoun'].mean()
-                max_matches = donor['matcoun'].max()
-                min_matches = donor['matcoun'].min()
-                no_matches= donor['matcoun'].isnull().sum()
-                non_alt = donor['altruistic'].isnull().sum()
-                alt = number_of_donors - non_alt
-                multiple_sources = count_sources(donor)
-                avg_age = donor['dage'].mean()
-                med_age = donor['dage'].median()
-                min_age =donor['dage'].min()
-                max_age = donor['dage'].max()
-                a,o,b,ab = count_blood_distribution(donor)
-
-                #appending to list
-                donors_count.append(number_of_donors)
-                no_matches_list.append(no_matches)
-                avg_total_matches_list.append(average_total_matches)
-                min_matches_list.append(min_matches)
-                max_matches_list.append(max_matches)
-                non_alt_list.append(non_alt)
-                alt_list.append(alt)
-                multiple_sources_l.append(multiple_sources)
-                avg_age_l.append(avg_age)
-                med_age_l.append(med_age)
-                min_age_l.append(min_age)
-                max_age_l.append(max_age)
-                a_type_l.append(a)
-                b_type_l.append(b)
-                o_type_l.append(o)
-                ab_type_l.append(ab)
-
-        donor_instance_list_data_stored = {
-        'Instance Id': instance_ids,
-        'No. of Donors':donors_count,
-        'Avg No. of Matches': avg_total_matches_list,
-        'Max No. of Matches':max_matches_list,
-        'No. of Altruistic Donors':alt_list,
-        'No. of Non Altruistic Donors':non_alt_list,
-        'Donors with Multiple Sources':multiple_sources_l,
-        'Average Age of Donors':avg_age_l,
-        'Min Age of Donors':min_age_l,
-        'Max Age of Donors':max_age_l,
-        'Median Age of Donors':med_age_l,
-        'A bloodtype Donors Count':a_type_l,
-        'B bloodtype Donors Count':b_type_l,
-        'O bloodtype Donors Count':o_type_l,
-        'AB bloodtype Donors Count':ab_type_l,
-        'Donors with No Matches': no_matches_list,
-        'Min No. of Matches':min_matches_list,
-        }
-
-        donor_instances_df_stored = pd.DataFrame(donor_instance_list_data_stored)
-        st.session_state.donor_instances_df_stored = donor_instances_df_stored
-
-    donor_instances_df_stored = st.session_state.donor_instances_df_stored
-    st.markdown(const.donor_heading)
-    st. dataframe(donor_instances_df_stored)
-    st.markdown("""***""")
-    st.markdown("""##### Accumulative Statistics of the Donors in the set:""")
-    x_d = donor_instances_df_stored.copy()
-    del x_d['Instance Id']
-    st.dataframe(x_d.describe().iloc[[1,2,3,4,5,6,7]])
-
-
-    with st.container():
-        st.markdown("""***""")
-
-        cola, colb = st.columns(2)
-        with cola:
-            st.markdown("""##### 1. Distribution of No. of Donors in the set""")
-            b = donor_instances_df_stored[['No. of Donors']].copy()
-            st.dataframe(b.describe())
-        with colb:
-            a_3802 = b.copy()
-            a_3802['Instance Id'] = donor_instances_df_stored['Instance Id'].copy()
-            # fig = px.histogram(a_380, x="No. of Donors",y = 'Frequency in the Set',title = 'Donors Count distribution  ' , color_discrete_sequence = px.colors.sequential.Cividis)
-            fig = px.bar(a_3802, x="Instance Id", y="No. of Donors",title = 'Donors Count distribution within the set  ',  color_discrete_sequence = px.colors.sequential.RdBu )
-            fig.update_layout(legend=dict(
-            orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1),
-            title_font_size= 17)
-
-            st.plotly_chart(fig,use_container_width=True)
-
-    with st.container():
-        st.markdown("""***""")
-        st.markdown("""##### 2. Distribution of Altruistic Donors in the set""")
-
-        b1 = donor_instances_df_stored[['No. of Altruistic Donors','No. of Non Altruistic Donors']].describe()
-        st.dataframe(b1)
-        colb1, colc1 = st.columns(2)
-        with colb1:
-            total = donor_instances_df_stored['No. of Donors'].sum()
-            sum = donor_instances_df_stored['No. of Altruistic Donors'].sum()
-            sum2 = donor_instances_df_stored['No. of Non Altruistic Donors'].sum()
-            aa = round(((sum)/total * 100),2)
-            bb = round(((sum2)/total *100),2)
-
-            values = [round(aa,2),round(bb,2)]
-            labels = ['Altruistic\n' + str(aa) +'%','Non Altruistic\n '+ str(bb) +'%']
-            fig1, ax1 = plt.subplots()
-
-            wedges, texts, autotexts =  ax1.pie(values,  colors = ['#ffbb99','#cc0044'],
-            autopct = '%1.1f%%',
-            textprops={ 'color':'white'})
-            ax1.legend(wedges, ['No. of Altruistic Donors','No. of Non Altruistic Donors'],
-            loc="center left",
-            bbox_to_anchor=(1, 0, 0.5, 1), mode = 'expand')
-            st.write('Altruistic Donors Distribution in the set')
-            st.pyplot(fig1,transparent=True)
-        with colc1:
-            fig = px.bar(donor_instances_df_stored, x="Instance Id", y=["No. of Altruistic Donors", "No. of Non Altruistic Donors"],
-            title="Accumulative Distribution of Altruistic Donors in instances",
-            color_discrete_map = {'No. of Altruistic Donors':'#ffbb99', 'No. of Non Altruistic Donors':'#cc0044'})
-            fig.update_layout(legend=dict(
-            orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1),
-            title_font_size= 15)
-
-            st.plotly_chart(fig,use_container_width=True)
-
-
-    with st.container():
-        st.markdown("""***""")
-        st.markdown("""##### 3. Distribution of Donor Age in the set""")
-        cola,colb = st.columns(2)
-        with cola:
-            b2 = donor_instances_df_stored[[
-            'Average Age of Donors',
-            'Min Age of Donors',
-            'Max Age of Donors',
-            'Median Age of Donors']].describe()
-            st.dataframe(b2)
-        with colb:
-            N = 100
-            random_x = donor_instances_df_stored['Instance Id']
-            random_y0 = donor_instances_df_stored['Average Age of Donors']
-            random_y1 = donor_instances_df_stored['Min Age of Donors']
-            random_y2 = donor_instances_df_stored['Max Age of Donors']
-
-            # Create traces
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(x=random_x, y=random_y0,
-                                mode='lines',
-                                name='Average Age of Donors',
-                                line = dict(color = '#e64d00')))
-            fig.add_trace(go.Scatter(x=random_x, y=random_y1,
-                                mode='lines',
-                                name='Min Age of Donors',
-                                line = dict(color ='#cc0044')))
-            fig.add_trace(go.Scatter(x=random_x, y=random_y2,
-                                mode='lines', name='Max Age of Donors',
-                                line = dict(color = '#800040')))
-            fig.update_layout(
-            title="Distribution of Donor Age in the set",
-            xaxis_title="Instance Id",
-            yaxis_title="Age values")
-            st.write('Age values distribution in the sets')
-            st.plotly_chart(fig, use_container_width=True)
-
-    with st.container():
-        st.markdown("""***""")
-        st.markdown("""##### 4.Distribution of Donor's Matches Count in the set""")
-        cola, colb = st.columns(2)
-        with cola:
-            b = donor_instances_df_stored[['Avg No. of Matches','Max No. of Matches','Min No. of Matches']]
-            st.dataframe(b.describe())
-        with colb:
-
-            # fig = px.histogram(b, x="Instance Id",y ="Avg No. of Matches",title = 'Recipients cPRA distribution  ' , color_discrete_sequence = px.colors.sequential.Cividis)
-            fig = px.bar(donor_instances_df_stored,
-            x="Instance Id", y="Avg No. of Matches",title = 'Avg No. of Matches Count distribution  ' , color_discrete_sequence = px.colors.sequential.RdBu)
-            fig.update_layout(legend=dict(
-            orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1),
-            title_font_size= 15)
-            with colb:
-                st.plotly_chart(fig, use_container_width=True)
-    with st.container():
-        st.markdown("""***""")
-        st.markdown("""##### 5. Blood Type Distribution of Donors in the set""")
-
-
-        b4 = donor_instances_df_stored[[
-        'A bloodtype Donors Count',
-        'B bloodtype Donors Count','O bloodtype Donors Count','AB bloodtype Donors Count']].describe()
-        st.dataframe(b4)
-        colb5, colc5 = st.columns(2)
-        with colb5:
-            total = donor_instances_df_stored['No. of Donors'].sum()
-            a = round(donor_instances_df_stored['A bloodtype Donors Count'].sum()/total * 100,3)
-            b = round(donor_instances_df_stored['B bloodtype Donors Count'].sum()/total * 100,3)
-            c = round(donor_instances_df_stored['O bloodtype Donors Count'].sum()/total * 100,3)
-            d = round(donor_instances_df_stored['AB bloodtype Donors Count'].sum()/total * 100,3)
-            values = [a,b,c,d]
-            labels = ['A -' + str(a) +'%','B - '+ str(b) +'%' ,'O -' + str(a) +'%','AB -'+ str(b) +'%']
-            fig, ax = plt.subplots()
-            # ['#0077e6','#0059b3','#003366','#001a33']
-
-            wedges, texts, autotexts = ax.pie(values, colors = ['#e64d00','#800040','#cc0044','#ffbb99'],
-            autopct = '%1.1f%%',
-            textprops={ 'color':'white'})
-            st.write('Distribution in the set')
-            ax.legend(wedges, ['A','B','O','AB'],
-            loc="center left",
-            bbox_to_anchor=(1, 0, 0.5, 1), mode = 'expand')
-            st.pyplot(fig,transparent = True)
-        with colc5:
-            fig = px.bar(donor_instances_df_stored, x="Instance Id",
-             y=["A bloodtype Donors Count",
-              "B bloodtype Donors Count",
-              "O bloodtype Donors Count",
-              "AB bloodtype Donors Count"],
-            title="Accumulative Distribution in instances",
-            color_discrete_map={
-                    'AB bloodtype Donors Count':'#ffbb99',
-                    'A bloodtype Donors Count':'#e64d00',
-                    'O bloodtype Donors Count':'#cc0044',
-                    'B bloodtype Donors Count':'#800040',
-
-                })
-
-            fig.update_layout(legend=dict(
-            orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1),
-            title_font_size= 15)
-            st.plotly_chart(fig, use_container_width=True)
-    with st.container():
-        st.markdown("""***""")
-        st.markdown("""##### 6. Correlation of attributes in the Donor's set""")
-
-        cola, colb = st.columns(2)
-        with cola:
-            cor = donor_instances_df_stored[['No. of Donors','Avg No. of Matches','No. of Altruistic Donors',
-            'No. of Non Altruistic Donors','Average Age of Donors','A bloodtype Donors Count',
-            'B bloodtype Donors Count','O bloodtype Donors Count','AB bloodtype Donors Count'
-            ]]
-
-            corrMatrix = cor.corr()
-            st.write('Correlation Matrix')
-
-            st.dataframe(corrMatrix)
-
-        with colb:
-             fig = plt.figure(figsize=(10, 4))
-             sn.heatmap(corrMatrix, annot = True)
-             st.write('Heatmap for Correlation Matrix')
-             st.pyplot(fig,use_container_width=True)
-    with st.container():
-        st.markdown("""***""")
-        st.markdown("""##### 7. Correlation Between two Attributes""")
-
-        cola8, colb8 = st.columns(2)
-        with cola8:
-            attributes = ['No. of Donors','Avg No. of Matches','No. of Altruistic Donors',
-            'No. of Non Altruistic Donors','Average Age of Donors','A bloodtype Donors Count',
-            'B bloodtype Donors Count','O bloodtype Donors Count','AB bloodtype Donors Count'
-            ]
-            with st.form('Select the Donor Attributes :'):
-
-                x_label = (st.selectbox("Select attribute for X Axis:",attributes, index = 0))
-                y_label = (st.selectbox("Select attribute for Y Axis:",attributes, index = 1))
-                submit_donor_filter = st.form_submit_button('Plot the Graph')
-                title = 'Correlation between ' + x_label + 'and' + y_label
-
-        if(submit_donor_filter):
-                fig = px.scatter(donor_instances_df_stored,x = donor_instances_df_stored[x_label],
-                y = donor_instances_df_stored[y_label],
-                title = title ,
-                color_discrete_sequence = px.colors.sequential.RdBu )
-                fig.update_layout(legend=dict(
-                orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1),
-                title_font_size= 15)
-                with colb8:
-                    st.plotly_chart(fig, use_container_width=True)
-
-        # st.dataframe(donor)
-
-def analysis_recipient(recipient_final_list_stored):
-
-
-    recipients_instances_data_stored = None
-    recipients_instances_fin_df_stored = None
-
-    number_of_recipients_l = []
-    non_compatible_l = []
-    compatible_l = []
-    a_l = []
-    o_l = []
-    b_l = []
-    ab_l = []
-    cPRA_mean_l = []
-    cPRA_median_l = []
-    cPRA_std_deviation_l = []
-
-    # for recipients_sub in recipient_final_list_stored:
-    #     recipient = pd.DataFrame(recipients_sub).T
-
-    if 'recipients_instances_fin_df_stored' not in st.session_state:
-        instance_ids = list(range(1, len(recipient_final_list_stored)+1))
-
-        for recipients in recipient_final_list_stored:
-            number_of_recipients = 0
-            non_compatible = 0
-            compatible = 0
-            a,o,b,ab = 0,0,0,0
-            cPRA_mean = 0
-            cPRA_median = 0
-            cPRA_std_deviation = 0
-
-            recipients_df = pd.DataFrame(recipients).T
-
-            number_of_recipients = recipients_df.shape[0]
-            non_compatible,compatible = count_compatible(recipients_df)
-            a,o,b,ab = count_blood_distribution(recipients_df)
-            cPRA_mean = recipients_df['cPRA'].mean()
-            cPRA_median = recipients_df['cPRA'].median()
-            cPRA_std_deviation = recipients_df['cPRA'].std()
-
-            #appending to list
-            number_of_recipients_l.append(number_of_recipients)
-            non_compatible_l.append(non_compatible)
-            compatible_l.append(compatible)
-            a_l.append(a)
-            o_l.append(o)
-            b_l.append(b)
-            ab_l.append(ab)
-            cPRA_mean_l.append(cPRA_mean)
-            cPRA_median_l.append(cPRA_median)
-            cPRA_std_deviation_l.append(cPRA_std_deviation)
-
-        recipients_instances_data_stored = {
-        'Instance Id': instance_ids,
-        'No. of Recipients':number_of_recipients_l,
-        'No Compatible Donor count':non_compatible_l,
-        'Has Compatible Donor count': compatible_l,
-        'A bloodtype avg of Recipients' : a_l,
-        'O bloodtype avg of Recipients': o_l,
-        'B bloodtype avg of Recipients': b_l,
-        'AB bloodtype avg of Recipients': ab_l,
-        'cPRA mean' : cPRA_mean_l,
-        'cPRA median' : cPRA_median_l,
-        'cPRA std': cPRA_std_deviation_l
-        }
-
-        recipients_instances_fin_df_stored = pd.DataFrame(recipients_instances_data_stored)
-
-        st.session_state.recipients_instances_fin_df_stored = recipients_instances_fin_df_stored
-
-    recipients_instances_fin_df_stored = st.session_state.recipients_instances_fin_df_stored
-    st.markdown("""#### Recipients Data Analysis in Sets""")
-    st. dataframe(recipients_instances_fin_df_stored)
-    st.markdown("""***""")
-
-    st.markdown("""#### Accumulative statistics of the set""")
-    # index = ['No of Cycles','No of Two Cycles','No of Three Cycles', 'No of Short chains',
-    #  'No of Long chains', 'weight Avg', 'weight Median','weight std','No of Cycles with backarcs']
-    x = recipients_instances_fin_df_stored.copy()
-    del x['Instance Id']
-    st.dataframe(x.describe().iloc[[1,2,3,4,5,6,7]])
-
-
-    with st.container():
-        st.markdown("""***""")
-        st.markdown("""##### 1. Distribution of No. of Recipients in the set""")
-        cola, colb = st.columns(2)
-        with cola:
-            b = recipients_instances_fin_df_stored[['No. of Recipients']]
-            st.dataframe(b.describe())
-        with colb:
-            a_3801 = b.copy()
-            a_3801['Frequency in the Set'] = recipients_instances_fin_df_stored['Instance Id'].copy()
-            # fig = px.histogram(a_380, x="No. of Donors",y = 'Frequency in the Set',title = 'Donors Count distribution  ' , color_discrete_sequence = px.colors.sequential.Cividis)
-            fig = px.bar(a_3801, x="Frequency in the Set",
-             y="No. of Recipients",
-             title = 'Recipients Count distribution  ' , color_discrete_sequence = px.colors.sequential.RdBu)
-            fig.update_layout(legend=dict(
-            orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1),
-            title_font_size= 15)
-            st.write('Distribution in the set')
-            st.plotly_chart(fig, use_container_width=True)
-
-    with st.container():
-        st.markdown("""***""")
-        st.markdown("""##### 2. Distribution of Recipients compatibility in the set""")
-
-        b1 = recipients_instances_fin_df_stored[['No Compatible Donor count','Has Compatible Donor count']].describe()
-        st.dataframe(b1)
-        colb1, colc1 = st.columns(2)
-        with colb1:
-            total = recipients_instances_fin_df_stored['No. of Recipients'].sum()
-            sum = recipients_instances_fin_df_stored['No Compatible Donor count'].sum()
-            sum2 = recipients_instances_fin_df_stored['Has Compatible Donor count'].sum()
-            aa = round(((sum)/total * 100),2)
-            bb = round(((sum2)/total *100),2)
-
-            values = [round(aa,2),round(bb,2)]
-            labels = ['No Compatible Donor\n' + str(aa) +'%',' Has Compatible Donor\n '+ str(bb) +'%']
-            fig1, ax1 = plt.subplots()
-            wedges, texts, autotexts =ax1.pie(values, colors = ['#ffbb99','#cc0044'],
-            autopct = '%1.1f%%',
-            textprops={ 'color':'white'})
-            ax1.legend(wedges, ['No Compatible Donor counts','Has Compatible Donor count'],
-            loc="center left",
-            bbox_to_anchor=(1, 0, 0.5, 1), mode = 'expand')
-            st.write('Distribution in the set')
-            st.pyplot(fig1, transparent =  True)
-        with colc1:
-            fig = px.bar(recipients_instances_fin_df_stored, x="Instance Id", y=["No Compatible Donor count", "Has Compatible Donor count"],
-            title="Accumulative Distribution in instances",
-            color_discrete_map = {'No Compatible Donor count':'#ffbb99', 'Has Compatible Donor count':'#cc0044'})
-
-            fig.update_layout(legend=dict(
-            orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1),
-            title_font_size= 15)
-            st.write('Distribution in the instances of set')
-            st.plotly_chart(fig, use_container_width=True)
-
-    with st.container():
-        st.markdown("""***""")
-        st.markdown("""##### 3. Blood Type Distribution of Recipients in the set""")
-
-        b6 = recipients_instances_fin_df_stored[[
-        'A bloodtype avg of Recipients',
-        'O bloodtype avg of Recipients','B bloodtype avg of Recipients','AB bloodtype avg of Recipients']].describe()
-        st.dataframe(b6)
-        colb56, colc56 = st.columns(2)
-        with colb56:
-            total = recipients_instances_fin_df_stored['No. of Recipients'].sum()
-            a = round(recipients_instances_fin_df_stored['A bloodtype avg of Recipients'].sum()/total * 100,3)
-            b = round(recipients_instances_fin_df_stored['O bloodtype avg of Recipients'].sum()/total * 100,3)
-            c = round(recipients_instances_fin_df_stored['B bloodtype avg of Recipients'].sum()/total * 100,3)
-            d = round(recipients_instances_fin_df_stored['AB bloodtype avg of Recipients'].sum()/total * 100,3)
-            values = [a,b,c,d]
-            labels = ['A -' + str(a) +'%','O - '+ str(b) +'%' ,'B -' + str(a) +'%','AB -'+ str(b) +'%']
-            fig, ax = plt.subplots()
-
-            wedges, texts, autotexts = ax.pie(values,
-            colors = ['#ffbb99','#e64d00','#cc0044','#800040'],
-            autopct = '%1.1f%%',
-            textprops={ 'color':'white'})
-            ax.legend(wedges, ['A','B','O','AB'],
-            loc="center left",
-            bbox_to_anchor=(1, 0, 0.5, 1), mode = 'expand')
-            st.write('Distribution in the set')
-            st.pyplot(fig,transparent = True)
-        with colc56:
-            fig = px.bar(recipients_instances_fin_df_stored, x="Instance Id",
-             y=[
-             'A bloodtype avg of Recipients',
-             'O bloodtype avg of Recipients','B bloodtype avg of Recipients','AB bloodtype avg of Recipients'],
-            title="Accumulative Distribution in instances",
-            color_discrete_map={
-                    'A bloodtype avg of Recipients':'#ffbb99',
-                    'O bloodtype avg of Recipients':'#e64d00',
-                    'B bloodtype avg of Recipients':'#cc0044',
-                    'AB bloodtype avg of Recipients':'#800040',}
-
-                )
-            fig.update_layout(legend=dict(
-            orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1),
-            title_font_size= 15)
-            st.plotly_chart(fig, use_container_width=True)
-
-    with st.container():
-        st.markdown("""***""")
-        st.markdown("""##### 4. cPRA Distribution of Recipients in the set""")
-
-
-        b2 = recipients_instances_fin_df_stored[[
-        'cPRA mean',
-        'cPRA median',
-        'cPRA std']].describe()
-        st.dataframe(b2)
-        cola,colb = st.columns(2)
-        with cola:
-            N = 100
-            random_x = recipients_instances_fin_df_stored['Instance Id']
-            random_y0 = recipients_instances_fin_df_stored['cPRA mean']
-            random_y1 = recipients_instances_fin_df_stored['cPRA median']
-            random_y2 = recipients_instances_fin_df_stored['cPRA std']
-
-            # Create traces
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(x=random_x, y=random_y0,
-                                mode='lines',
-                                name='cPRA mean',
-                                line = dict(color = '#e64d00')))
-            fig.add_trace(go.Scatter(x=random_x, y=random_y1,
-                                mode='lines',
-                                name='cPRA median',
-                                line = dict(color ='#cc0044')))
-            fig.add_trace(go.Scatter(x=random_x, y=random_y2,
-                                mode='lines', name='cPRA std',
-                                line = dict(color = '#800040')))
-
-            fig.update_layout(
-            title="cPRA distribution in the sets",
-            xaxis_title="Instance Id",
-            yaxis_title="cPRA values")
-            st.plotly_chart(fig, use_container_width=True)
-        with colb:
-            a_38010 = recipients_instances_fin_df_stored.copy()
-            a_38010['Instance Ids'] = recipients_instances_fin_df_stored['Instance Id'].copy()
-            # fig = px.histogram(a_380, x="No. of Donors",y = 'Frequency in the Set',title = 'Donors Count distribution  ' , color_discrete_sequence = px.colors.sequential.Cividis)
-            fig = px.bar(a_38010, x="Instance Ids",
-             y="cPRA mean",
-             title = 'Accumulative cPRA distribution in the instances  ' , color_discrete_sequence = px.colors.sequential.RdBu)
-            fig.update_layout(legend=dict(
-            orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1),
-            title_font_size= 15)
-            st.plotly_chart(fig, use_container_width=True)
-    with st.container():
-        st.markdown("""***""")
-        st.markdown("""##### 6. Correlation of attributes in the Recipients's set""")
-
-        cola, colb = st.columns(2)
-        with cola:
-            cor = recipients_instances_fin_df_stored[['No. of Recipients','No Compatible Donor count','Has Compatible Donor count',
-            'A bloodtype avg of Recipients','O bloodtype avg of Recipients','B bloodtype avg of Recipients',
-            'AB bloodtype avg of Recipients','cPRA mean']]
-
-            corrMatrix1 = cor.corr()
-            st.write('Correlation Matrix1')
-
-            st.dataframe(corrMatrix1)
-
-        with colb:
-             fig = plt.figure(figsize=(10, 4))
-             sn.heatmap(corrMatrix1, annot = True)
-             st.write('Heatmap for Correlation Matrix')
-             st.pyplot(fig,use_container_width=True)
-
-    with st.container():
-        st.markdown("""***""")
-        st.markdown("""##### 7. Correlation Between two Attributes""")
-
-        cola8, colb8 = st.columns(2)
-        with cola8:
-            attributes = ['No. of Recipients','No Compatible Donor count','Has Compatible Donor count',
-            'A bloodtype avg of Recipients','O bloodtype avg of Recipients','B bloodtype avg of Recipients',
-            'AB bloodtype avg of Recipients','cPRA mean']
-
-            with st.form('Select the Recipients Attributes  :'):
-
-                x_label = (st.selectbox("Select attribute for X Axis:",attributes, index = 0))
-                y_label = (st.selectbox("Select attribute for Y Axis:",attributes, index = 1))
-                submit_donor_filter = st.form_submit_button('Plot Scatter plot')
-                title = 'Correlation between ' + x_label + 'and' + y_label
-
-        if(submit_donor_filter):
-                fig = px.scatter(recipients_instances_fin_df_stored,x = recipients_instances_fin_df_stored[x_label],
-                y = recipients_instances_fin_df_stored[y_label],
-                title = title ,
-                color_discrete_sequence = px.colors.sequential.RdBu)
-                fig.update_layout(legend=dict(
-                orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1),
-                title_font_size= 15)
-                with colb8:
-                    st.plotly_chart(fig, use_container_width=True)
 
 def analysis_payload(payload_final_list_stored):
     if payload_final_list_stored in st.session_state:
@@ -808,15 +196,15 @@ def analysis_payload(payload_final_list_stored):
 
               cycle_2, cycle_3, s_chain, l_chain = calculate_cycles_chains(payload,all_ids)
 
-              all_cycle_dataframe['Two cycles'] = cycle_2
-              all_cycle_dataframe['Three cycles'] = cycle_3
-              all_cycle_dataframe['Short Chains'] = s_chain
-              all_cycle_dataframe['Long Chains'] = l_chain
+              all_cycle_dataframe[const.sub_heading_8] = cycle_2
+              all_cycle_dataframe[const.three_cycles] = cycle_3
+              all_cycle_dataframe[const.sub_heading_10] = s_chain
+              all_cycle_dataframe[const.long_chains] = l_chain
 
-              no_two_cycles = all_cycle_dataframe['Two cycles'].sum()
-              no_three_cycles = all_cycle_dataframe['Three cycles'].sum()
-              no_of_short_chains = all_cycle_dataframe['Short Chains'].sum()
-              no_of_long_chains = all_cycle_dataframe['Long Chains'].sum()
+              no_two_cycles = all_cycle_dataframe[const.sub_heading_8].sum()
+              no_three_cycles = all_cycle_dataframe[const.three_cycles].sum()
+              no_of_short_chains = all_cycle_dataframe[const.sub_heading_10].sum()
+              no_of_long_chains = all_cycle_dataframe[const.long_chains].sum()
 
               weight_avg = all_cycle_dataframe['weight'].mean()
               weight_median = all_cycle_dataframe['weight'].median()
@@ -850,10 +238,10 @@ def analysis_payload(payload_final_list_stored):
 
         st.session_state.payload_fin_df_stored= payload_fin_df_stored
     payload_fin_df_stored=  st.session_state.payload_fin_df_stored
-    st.markdown("""#### All cycles Analysis in Sets""")
+    st.markdown(const.all_cycle_heading)
     st. dataframe(payload_fin_df_stored)
-    st.markdown("""***""")
-    st.markdown("""#### Accumulative statistics of the set""")
+    st.markdown(const.horizontal_line)
+    st.markdown(const.accumulative_all_cycle)
     index = ['No. of Cycles','No. of Two Cycles','No. of Three Cycles', 'No. of Short chains',
      'No. of Long chains', 'Weight Avg', 'Weight Median','Weight std','No. of Cycles with backarcs']
 
@@ -861,7 +249,7 @@ def analysis_payload(payload_final_list_stored):
 
 
     with st.container():
-        st.markdown("""***""")
+        st.markdown(const.horizontal_line)
         st.markdown("""##### 1. Distribution of No. of Cycles in the set""")
         cola, colb = st.columns(2)
         with cola:
@@ -880,7 +268,7 @@ def analysis_payload(payload_final_list_stored):
             st.plotly_chart(fig, use_container_width=True)
 
     with st.container():
-        st.markdown("""***""")
+        st.markdown(const.horizontal_line)
         st.markdown("""##### 2. Weight Distribution of Cycles in the set""")
 
         b7 = payload_fin_df_stored[[
@@ -928,7 +316,7 @@ def analysis_payload(payload_final_list_stored):
             st.plotly_chart(fig, use_container_width=True)
 
     with st.container():
-        st.markdown("""***""")
+        st.markdown(const.horizontal_line)
         st.markdown("""##### 3. Cycle and chains Distribution in the set""")
 
         b6 = payload_fin_df_stored[[
@@ -952,7 +340,7 @@ def analysis_payload(payload_final_list_stored):
              autopct = '%1.1f%%',
              textprops={ 'color':'white'} )
             st.write('Distribution in the set')
-            ax.legend(wedges, ['2 cycles','3 cycles','short chains','long chains'],
+            ax.legend(wedges, ['2 cycles','3 cycles',const.short_chains,const.long_chains],
             loc="center left",
             bbox_to_anchor=(1, 0, 0.5, 1), mode = 'expand')
             st.pyplot(fig,transparent = True)
@@ -972,7 +360,7 @@ def analysis_payload(payload_final_list_stored):
             st.plotly_chart(fig, use_container_width=True)
 
     with st.container():
-        st.markdown("""***""")
+        st.markdown(const.horizontal_line)
         st.markdown("""##### 4. Correlation of attributes in the All cycles set""")
 
         cola, colb = st.columns(2)
@@ -996,7 +384,7 @@ def analysis_payload(payload_final_list_stored):
              st.pyplot(fig,use_container_width=True)
 
     with st.container():
-        st.markdown("""***""")
+        st.markdown(const.horizontal_line)
         st.markdown("""##### 5. Correlation Between two Attributes""")
 
         cola8, colb8 = st.columns(2)
@@ -1068,15 +456,15 @@ def analysis_exchanges(payload_final_list_stored):
                       no_exc_cycles.append(len(exc_cycle_df))
 
                       cycle_2, cycle_3, s_chain, l_chain = calculate_cycles_chains(payload,exc_cycle_ids)
-                      exc_cycle_df['Two cycles'] = cycle_2
-                      exc_cycle_df['Three cycles'] = cycle_3
-                      exc_cycle_df['Short Chains'] = s_chain
-                      exc_cycle_df['Long Chains'] = l_chain
+                      exc_cycle_df[const.sub_heading_8] = cycle_2
+                      exc_cycle_df[const.three_cycles] = cycle_3
+                      exc_cycle_df[const.sub_heading_10] = s_chain
+                      exc_cycle_df[const.long_chains] = l_chain
 
-                      no_of_two_cycles_l.append(exc_cycle_df['Two cycles'].sum())
-                      no_of_three_cycles_l.append(exc_cycle_df['Three cycles'].sum())
-                      no_of_short_chains_l.append(exc_cycle_df['Short Chains'].sum())
-                      no_of_long_chains_l.append(exc_cycle_df['Long Chains'].sum())
+                      no_of_two_cycles_l.append(exc_cycle_df[const.sub_heading_8].sum())
+                      no_of_three_cycles_l.append(exc_cycle_df[const.three_cycles].sum())
+                      no_of_short_chains_l.append(exc_cycle_df[const.sub_heading_10].sum())
+                      no_of_long_chains_l.append(exc_cycle_df[const.long_chains].sum())
 
                       weight_avg_l.append(exc_cycle_df['weight'].mean())
                       weight_median_l.append(exc_cycle_df['weight'].median())
@@ -1105,18 +493,18 @@ def analysis_exchanges(payload_final_list_stored):
                 st.session_state.exchange_data_final_df_stored = exchange_data_final_df_stored
 
         exchange_data_final_df_stored = st.session_state.exchange_data_final_df_stored
-        st.markdown("""#### Exchange cycles Analysis in Sets""")
+        st.markdown(const.exchange_cycle_heading)
         st.markdown('Description:' +description)
         st. dataframe(exchange_data_final_df_stored)
-        st.markdown("""***""")
-        st.markdown("""#### Accumulative statistics of the set""")
+        st.markdown(const.horizontal_line)
+        st.markdown(const.all_cycle_accum)
         index = ['No. of Exchange Cycles','Weight of Exchanges','Two - way echange', 'Three Way exchange',
          'Total Transplants', 'No. of two cyles', 'No. of three cycles','No. of short chains','No. of long chains', 'Cycle Containing Backarcs',
          'Avg weight of exc cycles']
         st.dataframe(exchange_data_final_df_stored.describe()[index].iloc[[1,2,3,4,5,6,7]])
 
         with st.container():
-            st.markdown("""***""")
+            st.markdown(const.horizontal_line)
             st.markdown("""##### 1. Distribution of No. of Exchange Cycles in the set""")
             cola, colb = st.columns(2)
             with cola:
@@ -1134,7 +522,7 @@ def analysis_exchanges(payload_final_list_stored):
                 title_font_size= 15)
                 st.plotly_chart(fig, use_container_width=True)
         with st.container():
-            st.markdown("""***""")
+            st.markdown(const.horizontal_line)
             st.markdown("""##### 2. Distribution of No. of Total Transplants""")
             cola, colb = st.columns(2)
             with cola:
@@ -1152,7 +540,7 @@ def analysis_exchanges(payload_final_list_stored):
                 title_font_size= 15)
                 st.plotly_chart(fig, use_container_width=True)
         with st.container():
-            st.markdown("""***""")
+            st.markdown(const.horizontal_line)
             st.markdown("""##### 3. Weight Distribution of Exchanges in the set""")
 
             b7 = exchange_data_final_df_stored[['Weight of Exchanges','Avg weight of exc cycles']].describe()
@@ -1198,7 +586,7 @@ def analysis_exchanges(payload_final_list_stored):
                 title_font_size= 15)
                 st.plotly_chart(fig, use_container_width=True)
         with st.container():
-            st.markdown("""***""")
+            st.markdown(const.horizontal_line)
             st.markdown("""##### 4. Cycle and chains Distribution in the set""")
             b6 = exchange_data_final_df_stored[[
                 'No. of Exchange Cycles',
@@ -1221,7 +609,7 @@ def analysis_exchanges(payload_final_list_stored):
                 autopct = '%1.1f%%',
                 textprops={ 'color':'white'})
                 st.write('Distribution in the set')
-                ax.legend(wedges, ['2 cycles','3 cycles','short chains','long chains'],
+                ax.legend(wedges, ['2 cycles','3 cycles',const.sub_heading_10,const.long_chains],
                 loc="center left",
                 bbox_to_anchor=(1, 0, 0.5, 1), mode = 'expand')
                 st.pyplot(fig,transparent = True)
@@ -1239,7 +627,7 @@ def analysis_exchanges(payload_final_list_stored):
                 st.plotly_chart(fig, use_container_width=True)
 
         with st.container():
-            st.markdown("""***""")
+            st.markdown(const.horizontal_line)
             st.markdown("""##### 5. Correlation of attributes in the Exchange Cycle set""")
 
             cola, colb = st.columns(2)
@@ -1262,7 +650,7 @@ def analysis_exchanges(payload_final_list_stored):
                  st.pyplot(fig,use_container_width=True)
 
         with st.container():
-            st.markdown("""***""")
+            st.markdown(const.horizontal_line)
             st.markdown("""##### 6. Correlation Between two Attributes""")
 
             cola8, colb8 = st.columns(2)
@@ -1290,8 +678,6 @@ def analysis_exchanges(payload_final_list_stored):
                     title_font_size= 15)
                     with colb8:
                         st.plotly_chart(fig, use_container_width=True)
-
-
 
 def calculate_cycles_chains(payload,ids):
     cycle_2 = []
@@ -1350,7 +736,6 @@ def per_cycle(df):
             c3 = 1
             type = 'Three cycle'
     return c2,c3,sc,lc,type
-
 
 def count_compatible(recipients):
   ncompatible,compatible = 0,0
