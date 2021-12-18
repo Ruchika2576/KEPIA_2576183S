@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 from utils import constants as const
 
 # this function calculates no. of chains and no. of cycles in the given instance
@@ -14,7 +13,7 @@ def calculate_cycles_chains(payload,ids):
       c3 = 0
       sc = 0
       lc = 0
-      type =''
+
 
       a = payload.get(const.output).get(const.all_cycles).get(str(i)).get(const.cycle)
       df = pd.DataFrame(a)

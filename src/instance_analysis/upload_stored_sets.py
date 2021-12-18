@@ -54,13 +54,13 @@ def main():
 def upload_zip_file():
     uploaded_file = None
     instance = None
-    zipped_file_name = None
 
     try:
         # file area to accept the input
         uploaded_file = st.file_uploader(const.head11, type = ['zip'])
     except Exception as e:
         st.error(const.error_head1)
+        st.error(e)
 
 
     if uploaded_file is not None:

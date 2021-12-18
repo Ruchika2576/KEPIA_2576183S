@@ -2,10 +2,6 @@ import requests
 from utils import constants as const
 import json
 import streamlit as st
-import zipfile
-import io
-import json
-import requests
 import concurrent.futures
 import time
 from time import sleep
@@ -37,6 +33,7 @@ def get_response_from_KAL(single_instance, single_operation,single_altruistic_ch
             raise RuntimeError(const.error4)
     except Exception as exc:
         st.error(const.error5 )
+        st.error(exc)
 
     return payload
 
@@ -96,7 +93,6 @@ def get_data_NHS_Optimal(multi_uploaded_zip_instance,operation, altruistic_chain
     final_payload_list = []
 
     k = 0
-    b = 0
     a = 0
 
     if len(multi_uploaded_zip_instance) > 50:
