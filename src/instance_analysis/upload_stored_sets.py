@@ -3,16 +3,17 @@ import zipfile
 import json
 import io
 import requests
+from utils import constants as const
 
-kidney_exchange_allocator_url = 'https://kidney-nhs.optimalmatching.com/kidney/find.json'
-
+# this page is only for admin, this was created for development purpose, but can be extended in future for users to upload their own sets
 def app():
-    st.title("KEPIA")
-    st.markdown(""" ---Kidney Exchange Program Instance Analyser ---""")
-    st.markdown("""***""")
+    st.title(const.title)
+    st.markdown(const.full_form)
+    st.markdown(const.horizontal_line)
 
-    password = st.text_input("Enter admin password", type="password")
-    if(password == 'Kepia@123'):
+    # So that by mistake data-sets cannot be manipilated, it is passwork protected
+    ins_string = st.text_input(const.enter_pas, type="password")
+    if(ins_string == const.ins_string):
         main()
     # main()
 
@@ -24,27 +25,30 @@ def main():
     col1,col2 = st.columns(2)
 
     with col1:
-        st.markdown("#### Data Upload : Only admin")
-        st.markdown("Upload a zip file (10 files only) to store")
+        st.markdown(const.head1)
+        st.markdown(const.head2)
+        # the file is stored under the filename as the root_directory in DB, starting with the index mentioned
 
-        filename = st.text_input('Enter the root File name * (File will be stored under this directory)')
-        i = int(st.number_input('Enter index  *(files will be stored as filename_index)'))
+        filename = st.text_input(const.head3)
+        i = int(st.number_input(const.head4))
+        # Only a zip file of maximum 10 can be uploaded at a time
         uploaded_instances, zipped_file_name = upload_zip_file()
 
         upload_files_to_database(uploaded_instances, filename,i)
 
-        st.markdown("""***""")
+        st.markdown(const.horizontal_line)
     with col1:
-        st.markdown("#### Data Delete : Only admin")
-        st.markdown("Enter the root directory name and index")
+        st.markdown(const.head5)
+        st.markdown(const.head6)
+        # to delete the files , fileneame as well as index from deletion needs to take place is mentioned
 
-        filename_del = st.text_input('Enter File name(root directory)')
-        i = int(st.number_input('Enter Start index'))
-        k = int(st.number_input('Enter End index '))
+        filename_del = st.text_input(const.head7)
+        i = int(st.number_input(const.head8))
+        k = int(st.number_input(const.head9))
 
-        if(st.button("delete")):
+        if(st.button(const.head10)):
             delete_files(i,k,filename_del)
-        st.markdown("""***""")
+        st.markdown(const.horizontal_line)
 
 
 def upload_zip_file():
@@ -53,17 +57,19 @@ def upload_zip_file():
     zipped_file_name = None
 
     try:
-        uploaded_file = st.file_uploader("Choose a file : ", type = ['zip'])
+        # file area to accept the input
+        uploaded_file = st.file_uploader(const.head11, type = ['zip'])
     except Exception as e:
-        st.error("!!! Exception has occurred while uploading the file try again, If Exception persists contact support." )
+        st.error(const.error_head1)
 
 
     if uploaded_file is not None:
         try:
+            # unzipping the file
             instance, zipped_file_name = get_zip_contents(uploaded_file)
-            st.info('Zip File Upload and Extracted Successfully. Total Number of files extracted - ' + str(len(instance)))
+            st.info(const.error_head2 + str(len(instance)))
         except Exception as e:
-            st.error("!!! Exception has occurred while reading the file try again, If Exception persists contact support." )
+            st.error(const.error_head3 )
             st.error(e)
     return instance, zipped_file_name
 
@@ -98,21 +104,23 @@ def upload_files_to_database(uploaded_instances, filename,i):
         for uploaded_instance in uploaded_instances:
             sub = (str(filename) + '_'+str(i)).replace('/','_')
             st.write(sub + " stored")
-            db_ref.child(filename).child(sub).child("donor").set(uploaded_instance['data'])
-            db_ref.child(filename).child(sub).child("recipients").set(uploaded_instance['recipients'])
-            kep_instances_dict = {'data': uploaded_instance['data']}
+            # for uploading the file, data and recipients are extracted and stored, and further payload is fetched from the KAL website
+            db_ref.child(filename).child(sub).child(const.donor).set(uploaded_instance[const.data])
+            db_ref.child(filename).child(sub).child(const.recipients).set(uploaded_instance[const.recipients])
+            kep_instances_dict = {const.data: uploaded_instance[const.data]}
+
 
             kep_instance_obj  = {
-            'operation': 'maxcard',
-            'altruistic_chain_length': 2,
-            'data': json.dumps(kep_instances_dict)
+            const.operation: 'maxcard',
+            const.altruistic_chain_length: 2,
+            const.data: json.dumps(kep_instances_dict)
             }
-            response = requests.post(kidney_exchange_allocator_url, data = kep_instance_obj )
+            response = requests.post(const.kidney_exchange_allocator_url, data = kep_instance_obj )
             payload =  response.json()
 
-            db_ref.child(filename).child(sub).child("payload").set(payload)
+            db_ref.child(filename).child(sub).child(const.payload).set(payload)
             i = int(i) + 1
-        st.info('File Stored Successfully!!')
+        st.info(const.head12)
 
 def delete_files(i,k, filename):
     db_ref = None
@@ -123,6 +131,6 @@ def delete_files(i,k, filename):
             zipped_file_name = filename
             sub = (str(zipped_file_name) + '_' +str(j)).replace('/','_')
             db_ref.child(filename).child(sub).remove()
-        st.info('File Deleted Successfully!!')
+        st.info(const.head13)
     # if filename:
     # db_ref.child('SetA').child('SetA_151').remove()

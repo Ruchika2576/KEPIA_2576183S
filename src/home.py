@@ -16,7 +16,7 @@ st.set_page_config(
 if 'db_ref' not in st.session_state:
     st.session_state['db_ref'] = firebase.get_DB_Config()
 
-# The following lines set the navigation bar 
+# The following lines set the navigation bar
 nav_instance = navigation_bar.Navigation()
 nav_instance.add_page(const.stored_set, analysis_stored_data.app)
 nav_instance.add_page(const.single_instance, single_instance_analysis.app)

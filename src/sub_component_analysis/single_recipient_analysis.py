@@ -63,7 +63,7 @@ def filter_data_recipients(recipients):
     st.markdown(const.horizontal_line)
 
     st.markdown( const.heading_15)
-
+    # initial default values
     cPRA_low =0.0
     cPRA_high =0.0
     bloodtype_choices = 'A'
@@ -82,14 +82,14 @@ def filter_data_recipients(recipients):
     with col1:
         st.write(const.filter_heading_13)
         with st.form(const.filter_heading_14):
-
+            # reading the input from user
             cPRA_low = st.number_input(const.filter_heading_15, min_value=cPRA_min, max_value=cPRA_max, value = cPRA_min)
             cPRA_high = st.number_input(const.filter_heading_16,min_value=cPRA_min, max_value=cPRA_max, value =cPRA_max)
             bloodtype_choices = (st.selectbox(const.filter_heading_4,['A','O','AB','A','None'], index = 4))
             Compatibility_choices = (st.selectbox(const.filter_heading_17,['True','False','None'], index = 2))
 
             submit_rec_filter = st.form_submit_button(const.filter_heading_18)
-
+            # after the submit button is clicked, proceed with filtering
             if(submit_rec_filter):
                 if bloodtype_choices != 'None' and Compatibility_choices != 'None':
                     finaldisplay_rec = recipients[
@@ -113,6 +113,7 @@ def filter_data_recipients(recipients):
                         ]
 
     with col2:
+        # display the filtered results
         if finaldisplay_rec is not None:
             st.markdown(const.filter_heading_19)
             st.write(const.filter_heading_8 + str(len(finaldisplay_rec)))

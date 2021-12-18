@@ -4,7 +4,9 @@ import numpy as np
 from utils import constants as const
 from utils import sub_component_utils
 from utils import visualisation_utils as viz
+# This module calculates multiple analysis on all cycles
 
+# This function prepares data for multiple files uploaded, after preparing the the dataframe, the dataframe is further sent for analysis
 def analysis_multiple_payload(payload_list,session_state_name):
     if payload_list in st.session_state:
         payload_list = st.session_state.payload_list
@@ -90,6 +92,7 @@ def analysis_multiple_payload(payload_list,session_state_name):
     payload_fin_df =  st.session_state[session_state_name]
     analysis_payload(payload_fin_df)
 
+# This function prepares data for the stored sets, after preparing the the dataframe, the dataframe is further sent for analysis
 def analysis_stored_payload(payload_final_list_stored,session_state_name):
     if payload_final_list_stored in st.session_state:
         payload_final_list_stored = st.session_state.payload_final_list_stored
@@ -187,7 +190,7 @@ def analysis_stored_payload(payload_final_list_stored,session_state_name):
     payload_fin_df_stored=  st.session_state[session_state_name]
     analysis_payload(payload_fin_df_stored)
 
-
+# Here the actual analysis takes place
 def analysis_payload(final_payload_df):
 
     st.markdown(const.all_cycle_heading)
@@ -197,9 +200,10 @@ def analysis_payload(final_payload_df):
     index = [const.cycle_count,const.Two_cycle_count,const.Three_cycle_count, const.sc_count,
      const.lc_count, const.avg_weight, const.med_weight,const.std_weight,const.back_count]
 
+    # displaying the all cycles dataframe
     st.dataframe(final_payload_df.describe()[index].iloc[[1,2,3,4,5,6,7]])
 
-
+    # Each analysis is breakdown and presented inside a container
     with st.container():
         st.markdown(const.horizontal_line)
         st.markdown(const.heading_multiple_14)

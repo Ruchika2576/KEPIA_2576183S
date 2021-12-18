@@ -142,6 +142,7 @@ def donor_data_analysis(single_instance):
 def filter_data_donors(donors):
     st.markdown(const.horizontal_line)
     st.markdown(const.heading_9)
+    # initial default values
     dage_low =0
     dage_high =1
     count_low = 0

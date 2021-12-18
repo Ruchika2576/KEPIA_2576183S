@@ -4,7 +4,9 @@ import zipfile
 import io
 import streamlit as st
 from utils import api_utils
+# this module contains functions to read the inputs from the user
 
+# This function handles reading single file
 def upload_single_file():
     uploaded_file = None
     single_instance = None
@@ -27,6 +29,7 @@ def upload_single_file():
             st.error(e)
     return single_instance, filename
 
+# This function reads the operation type and altruistic_chain_length
 def get_operation_and_chain_length():
 
     col1, col2 = st.columns(2)
@@ -38,6 +41,8 @@ def get_operation_and_chain_length():
     return single_operation,single_altruistic_chain_length
 
 
+# This fucntion reads a zip_file, send if for extrcation, and fecthes the payload for each instance, and retirns all the sub-
+# components to the calling function
 def multi_upload_zip_file(operation, altruistic_chain_length):
     multi_uploaded_file = None
     instance = None
