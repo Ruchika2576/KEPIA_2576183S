@@ -148,7 +148,7 @@ alt_options = ('1', '2')
 select_stored_set = "#### Select a Set to Begin Analysis "
 stored_set_option = "The exchange Cycles are stored with the following parameters - "
 select_set_message ="Choose a Set (Refresh before changing the Set): "
-set_options = (None, 'SetA','SetB','SetC', 'SetD', 'SetE', 'SetF','temp')
+set_options = (None, 'SetA','SetB','SetC', 'SetD', 'SetE', 'SetF')
 
 # input display headings
 upload_single_file = ' **_Uploaded File_** - '

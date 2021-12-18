@@ -1,4 +1,3 @@
-import plotly
 import plotly.graph_objects as go
 import seaborn as sn
 import altair as altair
