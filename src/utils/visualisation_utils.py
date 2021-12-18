@@ -7,7 +7,7 @@ import plotly.express as px
 import streamlit as st
 from utils import constants as const
 
-
+# All the fuctions, produces the graph on the UI
 def plot_altair_bar(a,title,x, y, color):
     p = altair.Chart(a, title = title).mark_bar().encode(
     x = x,

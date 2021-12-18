@@ -5,6 +5,7 @@ from utils import constants as const
 from utils import sub_component_utils
 from utils import visualisation_utils as viz
 
+# this function performs analysis on all the recipients of the set
 def analysis_recipient(recipient_final_list_stored,session_state_name):
 
     recipients_instances_data_stored = None
@@ -23,7 +24,7 @@ def analysis_recipient(recipient_final_list_stored,session_state_name):
 
     if session_state_name not in st.session_state:
         instance_ids = list(range(1, len(recipient_final_list_stored)+1))
-
+        # first, calculations are done on individual recipient and then combined in a table
         for recipients in recipient_final_list_stored:
             number_of_recipients = 0
             non_compatible = 0
@@ -53,7 +54,7 @@ def analysis_recipient(recipient_final_list_stored,session_state_name):
             cPRA_mean_l.append(cPRA_mean)
             cPRA_median_l.append(cPRA_median)
             cPRA_std_deviation_l.append(cPRA_std_deviation)
-
+        # all calculations are combined under a column name in resulting data frame
         recipients_instances_data_stored = {
         const.instance_id: instance_ids,
         const.recipients_count:number_of_recipients_l,
@@ -74,17 +75,17 @@ def analysis_recipient(recipient_final_list_stored,session_state_name):
 
     recipients_instances_fin_df_stored = st.session_state[session_state_name]
     st.markdown(const.recipient_heading)
+    # the recipient dataframe is shown on the UI
     st. dataframe(recipients_instances_fin_df_stored)
     st.markdown(const.horizontal_line)
 
     st.markdown(const.accumulative_recipient)
-    # index = ['No of Cycles','No of Two Cycles','No of Three Cycles', 'No of Short chains',
-    #  'No of Long chains', 'weight Avg', 'weight Median','weight std','No of Cycles with backarcs']
+
     x = recipients_instances_fin_df_stored.copy()
     del x[const.instance_id]
     st.dataframe(x.describe().iloc[[1,2,3,4,5,6,7]])
 
-
+    # All the analysis begins here, and are grouped into containers
     with st.container():
         st.markdown(const.horizontal_line)
         st.markdown(const.heading_multiple_8)

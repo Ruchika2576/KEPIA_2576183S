@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from utils import constants as const
 
+# this function calculates no. of chains and no. of cycles in the given instance
 def calculate_cycles_chains(payload,ids):
     cycle_2 = []
     cycle_3 = []
@@ -27,6 +28,7 @@ def calculate_cycles_chains(payload,ids):
 
     return cycle_2, cycle_3, s_chain, l_chain
 
+# This function calculates the given cycle type
 def per_cycle(df):
     c2 = 0
     c3 = 0
@@ -54,6 +56,7 @@ def per_cycle(df):
             type =  const.three_cycles
     return c2,c3,sc,lc,type
 
+# This fucntione counts the number of matches a donor has
 def count_matches(row):
   if isinstance(row[const.matches], list) :
     return int(len(row[const.matches]))
@@ -76,10 +79,13 @@ def render_donor(x,i, donors):
             st.write(const.Matches)
             st.dataframe(donors[const.matches].iloc[i], width = 300, height = 170)
 
+# This funciton counts the multiple sources of donors
 def count_sources(donor):
       x = donor['sources'].value_counts(dropna = 'True')
       y = x.where(x > 1).value_counts(dropna = 'True').sum()
       return y
+
+# This function counts bloodtype distribution for one donor
 def count_blood_distribution(donor):
       a = 0
       b = 0
@@ -99,6 +105,7 @@ def count_blood_distribution(donor):
           ab = btvalues[idx]
       return a,o,b,ab
 
+# This fucntions count comaptiblity in a set of given recipients
 def count_compatible(recipients):
   ncompatible,compatible = 0,0
   values = recipients['hasBloodCompatibleDonor'].value_counts()

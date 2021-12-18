@@ -47,6 +47,7 @@ description ='description'
 two_way_exchanges ='two_way_exchanges'
 three_way_exchanges ='three_way_exchanges'
 total_transplants ='total_transplants'
+donor = 'donor'
 
 # Custom column names
 matches_count = 'Matches Count'
@@ -55,6 +56,7 @@ two_cycles = 'Two cycle'
 three_cycles = 'Three cycle'
 short_chains = 'Short Chain'
 long_chains = 'Long Chain'
+payload = 'payload'
 
 # donors in set, column names
 instance_id = 'Instance Id'
@@ -334,3 +336,22 @@ graph_title_10 = 'Cycle Weight distribution  '
 graph_title_11 = 'Cycles Backarcs distribution'
 graph_title_12 = "cPRA distribution in the sets"
 graph_title_13 = 'Accumulative cPRA distribution in the instances  '
+
+ins_string = 'Kepia@123'
+head1 = "#### Data Upload : Only admin"
+head2 = "Upload a zip file (10 files only) to store"
+head3 = 'Enter the root File name * (File will be stored under this directory)'
+head4 = 'Enter index  *(files will be stored as filename_index)'
+head5 = "#### Data Delete : Only admin"
+head6 = "Enter the root directory name and index"
+head7 = 'Enter File name(root directory)'
+head8 = 'Enter Start index'
+head9 = 'Enter End index '
+head10 = "delete"
+head11 = "Choose a file : "
+head12 = 'File Stored Successfully!!'
+head13 = 'File Deleted Successfully!!'
+error_head1 = "!!! Exception has occurred while uploading the file try again, If Exception persists contact support."
+error_head2 = 'Zip File Upload and Extracted Successfully. Total Number of files extracted - '
+error_head3 = "!!! Exception has occurred while reading the file try again, If Exception persists contact support."
+enter_pas = "Enter admin password"

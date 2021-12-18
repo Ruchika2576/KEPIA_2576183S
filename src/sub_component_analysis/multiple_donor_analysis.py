@@ -5,6 +5,7 @@ from utils import constants as const
 from utils import sub_component_utils
 from utils import visualisation_utils as viz
 
+# this is the analysis for donors, for multiple files as well as stored sets
 def analysis_donor(donor_final_list_stored, session_state_name):
 
     donor_instance_list_data_stored = None
@@ -26,6 +27,8 @@ def analysis_donor(donor_final_list_stored, session_state_name):
     b_type_l = []
     o_type_l = []
     ab_type_l = []
+
+    # All necessary computations are done on individual instance, and grouped together in the table
 
     if session_state_name not in st.session_state:
         instance_ids = list(range(1, len(donor_final_list_stored)+1))
@@ -81,6 +84,7 @@ def analysis_donor(donor_final_list_stored, session_state_name):
                 o_type_l.append(o)
                 ab_type_l.append(ab)
 
+        # calculations computed for each instance are stored in list, and are appended to a column name of a datframe
         donor_instance_list_data_stored = {
         const.instance_id: instance_ids,
         const.donors_count:donors_count,
@@ -103,7 +107,7 @@ def analysis_donor(donor_final_list_stored, session_state_name):
 
         donor_instances_df_stored = pd.DataFrame(donor_instance_list_data_stored)
         st.session_state[session_state_name] = donor_instances_df_stored
-
+        # the table in the form of dataframe is created here
     donor_instances_df_stored = st.session_state[session_state_name]
     st.markdown(const.donor_heading)
     st. dataframe(donor_instances_df_stored)
@@ -111,9 +115,10 @@ def analysis_donor(donor_final_list_stored, session_state_name):
     st.markdown(const.accumulative_donor)
     x_d = donor_instances_df_stored.copy()
     del x_d[const.instance_id]
+    # the donors dataframe is displayed
     st.dataframe(x_d.describe().iloc[[1,2,3,4,5,6,7]])
 
-
+ #  'here,onwards all  the analysis on donors is grouped into containers'
     with st.container():
         st.markdown(const.horizontal_line)
 

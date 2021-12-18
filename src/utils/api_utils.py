@@ -10,6 +10,8 @@ import concurrent.futures
 import time
 from time import sleep
 
+# This module deals with all the API calls made to KAL
+
 def get_response_from_KAL(single_instance, single_operation,single_altruistic_chain_length):
     #Extracting the json dictionary into KEP instances and recipients
     payload = None
@@ -38,22 +40,22 @@ def get_response_from_KAL(single_instance, single_operation,single_altruistic_ch
 
     return payload
 
-
+# Individual requests fucntion
 def get_data_from_NHS_one_request(session,kep_instance_obj):
 
     response = session.send(requests.Request('POST',const.kidney_exchange_allocator_url, data = kep_instance_obj ).prepare())
     payload =  response.json()
 
     return payload
-
+# The fuction spawns the thread and calls get_data_from_NHS_one_request on each request
 def create_multithread_for_NHS_request(multi_uploaded_zip_instance,operation,altruistic_chain_length ):
-    #create an aiohttp session, to handle all the requests
+
     payload_list =[]
     instance_obj_list = []
     future_list = []
     for instance in multi_uploaded_zip_instance:
 
-        #this function will perform the actual request
+
         kep_instance = instance[const.data]
 
         #Creating request params to call the Kidney Exchange allocator
@@ -66,7 +68,7 @@ def create_multithread_for_NHS_request(multi_uploaded_zip_instance,operation,alt
         }
         instance_obj_list.append(kep_instance_obj)
 
-
+#create an thread and a  session, to handle all the requests
     with concurrent.futures.ThreadPoolExecutor(max_workers = 200) as executor:
         with requests.Session() as session:
 
@@ -84,6 +86,7 @@ def create_multithread_for_NHS_request(multi_uploaded_zip_instance,operation,alt
 
     return payload_list
 
+# This thread divides the number of inputs into batches of 50
 @st.cache(suppress_st_warning = True)
 def get_data_NHS_Optimal(multi_uploaded_zip_instance,operation, altruistic_chain_length):
     length = len(multi_uploaded_zip_instance)
@@ -129,7 +132,7 @@ def get_data_NHS_Optimal(multi_uploaded_zip_instance,operation, altruistic_chain
         # st.write('---------List is less than 50----------')
         payload_list = create_multithread_for_NHS_request(multi_uploaded_zip_instance,operation,altruistic_chain_length )
         return payload_list
-        
+
 # Commented code for trying different methods for calling nhs api
 # #direct call
 # def get_all_response_from_KAL(multi_uploaded_zip_instance,operation, altruistic_chain_length):

@@ -4,6 +4,9 @@ import numpy as np
 from utils import constants as const
 from utils import sub_component_utils
 from utils import visualisation_utils as viz
+# This module calculates multiple analysis on exchange cycles
+
+# This function prepares data for multiple files uploaded, after preparing the the dataframe, the dataframe is further sent for analysis
 
 def analysis_multiple_exchanges(payload_list,session_state_name):
     if payload_list in st.session_state:
@@ -85,6 +88,8 @@ def analysis_multiple_exchanges(payload_list,session_state_name):
     exchange_data_final_df = st.session_state[session_state_name]
     analysis_exchanges(exchange_data_final_df,description)
 
+# This function prepares data for stored set's exchange cycles, after preparing the the dataframe, the dataframe is further sent for analysis
+
 def analysis_stored_exchanges(payload_final_list_stored,session_state_name):
     if payload_final_list_stored in st.session_state:
         payload_final_list_stored = st.session_state.payload_final_list_stored
@@ -165,6 +170,7 @@ def analysis_stored_exchanges(payload_final_list_stored,session_state_name):
     exchange_data_final_df_stored = st.session_state[session_state_name]
     analysis_exchanges(exchange_data_final_df_stored,description)
 
+# Here the actual analysis begin
 def analysis_exchanges(final_exchange_df,description):
 
         st.markdown(const.exchange_cycle_heading)
@@ -175,8 +181,11 @@ def analysis_exchanges(final_exchange_df,description):
         index = [const.exc_count,const.exc_weight,const.two_exc_weight, const.three_way,
          const.Total_transplants, const.Two_cycle_count, const.Three_cycle_count,const.sc_count,const.lc_count, const.back_count,
          const.avg_weight]
+
+        # This particular line displays the exchange cycle dataframe on the UI
         st.dataframe(final_exchange_df.describe()[index].iloc[[1,2,3,4,5,6,7]])
 
+        # hereafter all analysis is sectioned into containers
         with st.container():
             st.markdown(const.horizontal_line)
             st.markdown(const.heading_multiple_19)
